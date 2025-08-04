@@ -50,9 +50,11 @@ export default function RegisterPage() {
   const onSubmit = async (data: RegisterFormValues) => {
     setIsLoading(true);
     try {
+      // Step 1: Create the user in Firebase Authentication
       const userCredential = await createUserWithEmailAndPassword(auth, data.email, data.password);
       const user = userCredential.user;
 
+      // Step 2: Save the user's profile information in Firestore
       await setDoc(doc(db, 'users', user.uid), {
         name: `${data.firstName} ${data.lastName}`,
         email: data.email,
@@ -60,7 +62,7 @@ export default function RegisterPage() {
         specialization: data.specialization,
         role: 'abogado', // Default role for self-registration
         status: 'activo', // Default status for new users
-        phone: '', // Phone can be added later
+        phone: '', // Phone can be added later from their profile settings
       });
 
       toast({
