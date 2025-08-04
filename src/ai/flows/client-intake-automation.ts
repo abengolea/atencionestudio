@@ -31,7 +31,10 @@ export async function clientIntakeAutomation(input: ClientIntakeAutomationInput)
 
 const clientIntakeAutomationPrompt = ai.definePrompt({
   name: 'clientIntakeAutomationPrompt',
-  input: {schema: ClientIntakeAutomationInputSchema},
+  input: {schema: z.object({
+    message: ClientIntakeAutomationInputSchema.shape.message,
+    formattedHistory: z.string().optional(),
+  })},
   output: {schema: ClientIntakeAutomationOutputSchema},
   prompt: `Eres un asistente legal IA para el estudio "CaseClarity". Tu misión es realizar el intake inicial de clientes por WhatsApp.
 
@@ -85,13 +88,7 @@ TONO Y ESTILO:
 - Al final de cada respuesta, haz una pregunta clara para guiar al cliente.
 
 HISTORIAL DE CONVERSACIÓN:
-{{#if conversationHistory}}
-Aquí está la conversación hasta ahora:
-{{#each conversationHistory}}
-  {{#if (eq role 'user')}}Cliente: {{content}}{{/if}}
-  {{#if (eq role 'model')}}Tú: {{content}}{{/if}}
-{{/each}}
-{{/if}}
+{{{formattedHistory}}}
 
 MENSAJE ACTUAL DEL CLIENTE:
 "{{message}}"
@@ -107,13 +104,27 @@ const clientIntakeAutomationFlow = ai.defineFlow(
     outputSchema: ClientIntakeAutomationOutputSchema,
   },
   async (input) => {
-    // Build the prompt history from the input
+    // Build the prompt history for the model
     const history = (input.conversationHistory || []).map(entry => ({
       role: entry.role,
       content: [{text: entry.content}],
     }));
 
-    const {output} = await clientIntakeAutomationPrompt(input, {history});
+    // Format the history for the prompt template
+    const formattedHistory = (input.conversationHistory || [])
+      .map(entry => {
+        if (entry.role === 'user') {
+          return `Cliente: ${entry.content}`;
+        }
+        return `Tú: ${entry.content}`;
+      })
+      .join('\n');
+
+    const {output} = await clientIntakeAutomationPrompt({
+        message: input.message,
+        formattedHistory,
+    }, {history});
+
     return output!;
   }
 );
