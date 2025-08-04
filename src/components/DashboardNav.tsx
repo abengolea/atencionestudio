@@ -14,7 +14,7 @@ import {
 import { Separator } from './ui/separator';
 import { Avatar, AvatarFallback, AvatarImage } from './ui/avatar';
 import { Button } from './ui/button';
-import { LayoutDashboard, Gavel, Settings, LogOut, ChevronRight, Briefcase } from 'lucide-react';
+import { LayoutDashboard, Gavel, Settings, LogOut, ChevronRight, Briefcase, Shield } from 'lucide-react';
 import { Logo } from './Logo';
 import { useSidebar } from '@/components/ui/sidebar';
 
@@ -53,6 +53,16 @@ export function DashboardNav() {
               tooltip={{ children: 'Cases' }}
             >
               <Link href="/cases">Cases</Link>
+            </SidebarMenuButton>
+          </SidebarMenuItem>
+           <SidebarMenuItem>
+            <SidebarMenuButton
+              asChild
+              isActive={isActive('/admin')} 
+              icon={<Shield />}
+              tooltip={{ children: 'Admin' }}
+            >
+              <Link href="/admin">Admin</Link>
             </SidebarMenuButton>
           </SidebarMenuItem>
           <SidebarMenuItem>
