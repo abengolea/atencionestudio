@@ -27,7 +27,7 @@ import {
 } from '@/components/ui/tabs';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
-import { Cpu, Database, Edit, Trash2, Users, CheckCircle, XCircle, FileText, Shield, MessageSquare, Bot, Send } from 'lucide-react';
+import { Cpu, Database, Edit, Trash2, Users, CheckCircle, XCircle, FileText, Shield, MessageSquare, Bot, Send, PlusCircle } from 'lucide-react';
 import { Textarea } from '@/components/ui/textarea';
 import { Input } from '@/components/ui/input';
 import { clientIntakeAutomation } from '@/ai/flows/client-intake-automation';
@@ -35,6 +35,7 @@ import { cn } from '@/lib/utils';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { Avatar, AvatarFallback } from '@/components/ui/avatar';
 import { Label } from '@/components/ui/label';
+import Link from 'next/link';
 
 type User = {
   id: string;
@@ -227,7 +228,6 @@ function UserManagement() {
         setUsers(userList);
       } catch (error) {
         console.error("Error fetching users:", error);
-        // Aquí podrías mostrar un toast de error al usuario
       } finally {
         setIsLoading(false);
       }
@@ -238,9 +238,17 @@ function UserManagement() {
 
   return (
     <Card>
-      <CardHeader>
-        <CardTitle>Gestión de Usuarios</CardTitle>
-        <CardDescription>Ver y gestionar todos los usuarios en el sistema.</CardDescription>
+      <CardHeader className="flex flex-row items-center justify-between">
+        <div>
+          <CardTitle>Gestión de Usuarios</CardTitle>
+          <CardDescription>Ver y gestionar todos los usuarios en el sistema.</CardDescription>
+        </div>
+        <Button asChild>
+          <Link href="/admin/users/new">
+            <PlusCircle className="mr-2" />
+            Crear Usuario
+          </Link>
+        </Button>
       </CardHeader>
       <CardContent>
         {isLoading ? (
