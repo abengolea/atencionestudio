@@ -1,3 +1,7 @@
+
+'use client';
+
+import { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import {
   Card,
@@ -21,6 +25,16 @@ import {
   } from '@/components/ui/tabs';
 
 export default function SettingsPage() {
+  const [webhookUrl, setWebhookUrl] = useState('');
+
+  useEffect(() => {
+    // Asegura que window.location solo se use en el cliente
+    if (typeof window !== 'undefined') {
+      const url = `${window.location.origin}/api/whatsapp`;
+      setWebhookUrl(url);
+    }
+  }, []);
+
   return (
     <div className="flex flex-col gap-8">
       <div>
@@ -79,13 +93,24 @@ export default function SettingsPage() {
             </CardHeader>
             <CardContent className="space-y-4">
               <div className="space-y-2">
-                <Label htmlFor="whatsapp-number">Número de WhatsApp Business</Label>
-                <Input id="whatsapp-number" defaultValue="+1-555-123-4567" />
+                <Label htmlFor="whatsapp-number">ID de tu Número de Teléfono</Label>
+                <Input id="whatsapp-number" placeholder="Ej: 112233445566778" />
+                 <p className="text-sm text-muted-foreground">Pega aquí el ID de tu número de teléfono de la API de WhatsApp.</p>
               </div>
+               <div className="space-y-2">
+                <Label htmlFor="whatsapp-token">Token de Acceso</Label>
+                <Input id="whatsapp-token" type="password" placeholder="Pega aquí tu token de acceso permanente"/>
+              </div>
+                <div className="space-y-2">
+                <Label htmlFor="verify-token">Token de Verificación</Label>
+                <Input id="verify-token" placeholder="Crea y pega aquí un token de verificación secreto"/>
+                 <p className="text-sm text-muted-foreground">Crea una cadena de texto segura. La necesitarás para configurar el webhook.</p>
+              </div>
+              <Separator/>
               <div className="space-y-2">
                 <Label htmlFor="webhook-url">URL del Webhook</Label>
-                <Input id="webhook-url" defaultValue="https://api.caseclarity.com/webhook/abogado1" readOnly />
-                <p className="text-sm text-muted-foreground">Configura esta URL en los ajustes de tu cuenta de WhatsApp Business.</p>
+                <Input id="webhook-url" value={webhookUrl} readOnly />
+                <p className="text-sm text-muted-foreground">Configura esta URL en los ajustes de tu aplicación de WhatsApp en Meta for Developers.</p>
               </div>
               <div className="flex items-center space-x-2">
                 <Checkbox id="whatsapp-active" defaultChecked />
@@ -93,7 +118,7 @@ export default function SettingsPage() {
               </div>
             </CardContent>
             <CardFooter>
-              <Button>Guardar Configuración</Button>
+              <Button>Guardar Configuración de WhatsApp</Button>
             </CardFooter>
           </Card>
         </TabsContent>
