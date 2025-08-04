@@ -12,6 +12,7 @@ import {ai} from '@/ai/genkit';
 import {z} from 'genkit';
 
 const ClientIntakeAutomationInputSchema = z.object({
+  lawyerName: z.string().describe('El nombre del abogado para personalizar el saludo.'),
   message: z.string().describe('El mensaje del cliente a través de WhatsApp.'),
   conversationHistory: z.array(z.object({
     role: z.enum(['user', 'model']),
@@ -32,11 +33,12 @@ export async function clientIntakeAutomation(input: ClientIntakeAutomationInput)
 const clientIntakeAutomationPrompt = ai.definePrompt({
   name: 'clientIntakeAutomationPrompt',
   input: {schema: z.object({
+    lawyerName: ClientIntakeAutomationInputSchema.shape.lawyerName,
     message: ClientIntakeAutomationInputSchema.shape.message,
     formattedHistory: z.string().optional(),
   })},
   output: {schema: ClientIntakeAutomationOutputSchema},
-  prompt: `Eres un asistente legal IA para el estudio "CaseClarity". Tu misión es realizar el intake inicial de clientes por WhatsApp.
+  prompt: `Eres un asistente legal IA para el estudio del Dr. {{lawyerName}}. Tu misión es realizar el intake inicial de clientes por WhatsApp.
 
 OBJETIVO:
 Mantener una conversación natural y amigable para recopilar la información esencial de un caso legal y determinar si se debe escalar a un abogado.
@@ -44,7 +46,7 @@ Mantener una conversación natural y amigable para recopilar la información ese
 FLUJO DE CONVERSACIÓN:
 
 ETAPA 1: SALUDO INICIAL
-- Si no hay historial de conversación, preséntate: "Hola, soy el asistente legal de CaseClarity. Estoy aquí para ayudarte a organizar la información de tu caso para que nuestros abogados puedan atenderte de la mejor manera. ¿Podrías contarme brevemente cuál es tu situación legal?"
+- Si no hay historial de conversación, preséntate: "Hola, soy el asistente legal del Dr. {{lawyerName}}. Estoy aquí para ayudarte a organizar la información de tu caso para que nuestro equipo pueda atenderte de la mejor manera. Por favor, cuéntame brevemente cuál es el problema que te aqueja."
 - Si ya hay historial, continúa la conversación de forma natural.
 
 ETAPA 2: RECOPILACIÓN INTELIGENTE DE INFORMACIÓN
@@ -121,6 +123,7 @@ const clientIntakeAutomationFlow = ai.defineFlow(
       .join('\n');
 
     const {output} = await clientIntakeAutomationPrompt({
+        lawyerName: input.lawyerName,
         message: input.message,
         formattedHistory,
     }, {history});

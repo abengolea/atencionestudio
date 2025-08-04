@@ -32,6 +32,7 @@ import { clientIntakeAutomation } from '@/ai/flows/client-intake-automation';
 import { cn } from '@/lib/utils';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { Avatar, AvatarFallback } from '@/components/ui/avatar';
+import { Label } from '@/components/ui/label';
 
 
 const mockUsers = [
@@ -94,6 +95,7 @@ type Message = {
 function AITestChat() {
     const [messages, setMessages] = useState<Message[]>([]);
     const [input, setInput] = useState('');
+    const [lawyerName, setLawyerName] = useState('Adrian Bengolea');
     const [isLoading, setIsLoading] = useState(false);
 
     const handleSendMessage = async (e: React.FormEvent<HTMLFormElement>) => {
@@ -112,6 +114,7 @@ function AITestChat() {
             }));
             
             const result = await clientIntakeAutomation({
+                lawyerName,
                 message: input,
                 conversationHistory,
             });
@@ -134,6 +137,15 @@ function AITestChat() {
                 <CardDescription>Simula una conversación con el asistente legal de IA.</CardDescription>
             </CardHeader>
             <CardContent>
+                <div className="mb-4 space-y-2">
+                    <Label htmlFor="lawyer-name">Nombre del Abogado</Label>
+                    <Input 
+                        id="lawyer-name"
+                        value={lawyerName} 
+                        onChange={(e) => setLawyerName(e.target.value)}
+                        placeholder="ej. Juan Pérez"
+                    />
+                </div>
                 <div className="border rounded-lg h-[60vh] flex flex-col">
                     <ScrollArea className="flex-1 p-4">
                         <div className="space-y-4">
