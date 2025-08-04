@@ -11,7 +11,7 @@ export function WhatsAppChat({ caseData }: WhatsAppChatProps) {
   return (
     <Card>
       <CardHeader>
-        <CardTitle className="font-headline">Client Conversation</CardTitle>
+        <CardTitle className="font-headline">Conversación con el Cliente</CardTitle>
       </CardHeader>
       <CardContent>
         <div className="bg-muted/50 rounded-lg p-4 space-y-4 max-h-96 overflow-y-auto">

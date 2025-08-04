@@ -25,39 +25,39 @@ import { Cpu, Database, Edit, Trash2, Users, CheckCircle, XCircle, FileText, Shi
 import { Textarea } from '@/components/ui/textarea';
 
 const mockUsers = [
-  { id: 'USR001', name: 'John Doe', email: 'john.doe@lawfirm.com', role: 'Lawyer', status: 'active' },
-  { id: 'USR002', name: 'Jane Smith', email: 'jane.smith@example.com', role: 'Admin', status: 'active' },
-  { id: 'USR003', name: 'Peter Jones', email: 'peter.jones@lawfirm.com', role: 'Paralegal', status: 'inactive' },
-  { id: 'USR004', name: 'Alice Johnson', email: 'alice.j@example.com', role: 'Client', status: 'active' },
-  { id: 'USR005', name: 'Bob Williams', email: 'bob.w@example.com', role: 'Client', status: 'locked' },
+  { id: 'USR001', name: 'Juan Pérez', email: 'juan.perez@bufete.com', role: 'Abogado', status: 'activo' },
+  { id: 'USR002', name: 'Ana Gómez', email: 'ana.gomez@ejemplo.com', role: 'Admin', status: 'activo' },
+  { id: 'USR003', name: 'Pedro Ramírez', email: 'pedro.ramirez@bufete.com', role: 'Asistente Legal', status: 'inactivo' },
+  { id: 'USR004', name: 'Luisa Fernández', email: 'luisa.f@ejemplo.com', role: 'Cliente', status: 'activo' },
+  { id: 'USR005', name: 'Carlos Torres', email: 'carlos.t@ejemplo.com', role: 'Cliente', status: 'bloqueado' },
 ];
 
 const systemStatus = [
-    { name: 'API Service', status: 'Operational', icon: <Cpu className="h-5 w-5 text-green-500" /> },
-    { name: 'Database Connection', status: 'Operational', icon: <Database className="h-5 w-5 text-green-500" /> },
-    { name: 'WhatsApp Service', status: 'Degraded Performance', icon: <MessageSquare className="h-5 w-5 text-yellow-500" /> },
-    { name: 'Email Service', status: 'Outage', icon: <XCircle className="h-5 w-5 text-red-500" /> },
+    { name: 'Servicio de API', status: 'Operacional', icon: <Cpu className="h-5 w-5 text-green-500" /> },
+    { name: 'Conexión a Base de Datos', status: 'Operacional', icon: <Database className="h-5 w-5 text-green-500" /> },
+    { name: 'Servicio de WhatsApp', status: 'Rendimiento Degradado', icon: <MessageSquare className="h-5 w-5 text-yellow-500" /> },
+    { name: 'Servicio de Email', status: 'Interrupción', icon: <XCircle className="h-5 w-5 text-red-500" /> },
 ];
 
 const mockLogs = `
-[2023-10-27 10:00:00] INFO: User 'jane.smith@example.com' logged in successfully.
-[2023-10-27 10:01:15] INFO: Case 'CASE001' analysis complete. Success probability: 75%.
-[2023-10-27 10:02:30] WARN: WhatsApp service responding slowly. Latency: 1500ms.
-[2023-10-27 10:05:00] INFO: User 'john.doe@lawfirm.com' accepted case 'CASE001'.
-[2023-10-27 10:10:45] ERROR: Failed to connect to email service. SMTP connection refused.
-[2023-10-27 10:11:00] INFO: User 'bob.w@example.com' account locked after 5 failed login attempts.
-[2023-10-27 10:15:22] INFO: New case 'CASE004' received from 'diana.p@example.com'.
-[2023-10-27 10:16:00] INFO: Case 'CASE004' auto-rejected due to low estimated value ($15000).
+[2023-10-27 10:00:00] INFO: Usuario 'ana.gomez@ejemplo.com' inició sesión correctamente.
+[2023-10-27 10:01:15] INFO: Análisis del caso 'CASO001' completado. Probabilidad de éxito: 75%.
+[2023-10-27 10:02:30] WARN: El servicio de WhatsApp responde lentamente. Latencia: 1500ms.
+[2023-10-27 10:05:00] INFO: Usuario 'juan.perez@bufete.com' aceptó el caso 'CASO001'.
+[2023-10-27 10:10:45] ERROR: No se pudo conectar al servicio de email. Conexión SMTP rechazada.
+[2023-10-27 10:11:00] INFO: Cuenta del usuario 'carlos.t@ejemplo.com' bloqueada tras 5 intentos de inicio de sesión fallidos.
+[2023-10-27 10:15:22] INFO: Nuevo caso 'CASO004' recibido de 'diana.p@ejemplo.com'.
+[2023-10-27 10:16:00] INFO: Caso 'CASO004' rechazado automáticamente por bajo valor estimado ($15000).
 `;
 
 const getStatusBadge = (status: string) => {
     switch(status.toLowerCase()) {
-        case 'active':
-            return <Badge className="bg-green-100 text-green-800 dark:bg-green-900/50 dark:text-green-300 border-green-300">Active</Badge>;
-        case 'inactive':
-            return <Badge className="bg-gray-100 text-gray-800 dark:bg-gray-900/50 dark:text-gray-300 border-gray-300">Inactive</Badge>;
-        case 'locked':
-            return <Badge variant="destructive">Locked</Badge>;
+        case 'activo':
+            return <Badge className="bg-green-100 text-green-800 dark:bg-green-900/50 dark:text-green-300 border-green-300">Activo</Badge>;
+        case 'inactivo':
+            return <Badge className="bg-gray-100 text-gray-800 dark:bg-gray-900/50 dark:text-gray-300 border-gray-300">Inactivo</Badge>;
+        case 'bloqueado':
+            return <Badge variant="destructive">Bloqueado</Badge>;
         default:
             return <Badge variant="secondary">{status}</Badge>;
     }
@@ -65,11 +65,11 @@ const getStatusBadge = (status: string) => {
 
 const getSystemStatusColor = (status: string) => {
     switch(status) {
-        case 'Operational':
+        case 'Operacional':
             return 'text-green-500';
-        case 'Degraded Performance':
+        case 'Rendimiento Degradado':
             return 'text-yellow-500';
-        case 'Outage':
+        case 'Interrupción':
             return 'text-red-500';
         default:
             return 'text-muted-foreground';
@@ -80,32 +80,32 @@ export default function AdminPage() {
   return (
     <div className="flex flex-col gap-8">
       <div>
-        <h1 className="text-3xl font-bold font-headline">Admin Panel</h1>
-        <p className="text-muted-foreground">Manage users, settings, and monitor system health.</p>
+        <h1 className="text-3xl font-bold font-headline">Panel de Administración</h1>
+        <p className="text-muted-foreground">Gestiona usuarios, configuraciones y monitorea la salud del sistema.</p>
       </div>
 
       <Tabs defaultValue="users" className="w-full">
         <TabsList className="grid w-full grid-cols-3">
-          <TabsTrigger value="users"><Users className="mr-2"/> Users</TabsTrigger>
-          <TabsTrigger value="system"><Cpu className="mr-2"/> System</TabsTrigger>
-          <TabsTrigger value="logs"><FileText className="mr-2"/> Logs</TabsTrigger>
+          <TabsTrigger value="users"><Users className="mr-2"/> Usuarios</TabsTrigger>
+          <TabsTrigger value="system"><Cpu className="mr-2"/> Sistema</TabsTrigger>
+          <TabsTrigger value="logs"><FileText className="mr-2"/> Registros</TabsTrigger>
         </TabsList>
 
         <TabsContent value="users">
           <Card>
             <CardHeader>
-              <CardTitle>User Management</CardTitle>
-              <CardDescription>View and manage all users in the system.</CardDescription>
+              <CardTitle>Gestión de Usuarios</CardTitle>
+              <CardDescription>Ver y gestionar todos los usuarios en el sistema.</CardDescription>
             </CardHeader>
             <CardContent>
               <Table>
                 <TableHeader>
                   <TableRow>
-                    <TableHead>Name</TableHead>
+                    <TableHead>Nombre</TableHead>
                     <TableHead>Email</TableHead>
-                    <TableHead>Role</TableHead>
-                    <TableHead>Status</TableHead>
-                    <TableHead className="text-right">Actions</TableHead>
+                    <TableHead>Rol</TableHead>
+                    <TableHead>Estado</TableHead>
+                    <TableHead className="text-right">Acciones</TableHead>
                   </TableRow>
                 </TableHeader>
                 <TableBody>
@@ -130,8 +130,8 @@ export default function AdminPage() {
         <TabsContent value="system">
           <Card>
             <CardHeader>
-              <CardTitle>System Status</CardTitle>
-              <CardDescription>An overview of the health of critical system components.</CardDescription>
+              <CardTitle>Estado del Sistema</CardTitle>
+              <CardDescription>Un resumen de la salud de los componentes críticos del sistema.</CardDescription>
             </CardHeader>
             <CardContent className="grid gap-6 md:grid-cols-2">
                 {systemStatus.map(service => (
@@ -152,8 +152,8 @@ export default function AdminPage() {
         <TabsContent value="logs">
            <Card>
             <CardHeader>
-              <CardTitle>System Logs</CardTitle>
-              <CardDescription>A real-time feed of system events and errors.</CardDescription>
+              <CardTitle>Registros del Sistema</CardTitle>
+              <CardDescription>Un feed en tiempo real de eventos y errores del sistema.</CardDescription>
             </CardHeader>
             <CardContent>
                 <Textarea readOnly value={mockLogs} className="h-96 bg-muted font-mono text-xs" />

@@ -40,9 +40,9 @@ export function DashboardNav() {
               asChild
               isActive={isActive('/dashboard')}
               icon={<LayoutDashboard />}
-              tooltip={{ children: 'Dashboard' }}
+              tooltip={{ children: 'Panel' }}
             >
-              <Link href="/dashboard">Dashboard</Link>
+              <Link href="/dashboard">Panel</Link>
             </SidebarMenuButton>
           </SidebarMenuItem>
           <SidebarMenuItem>
@@ -50,9 +50,9 @@ export function DashboardNav() {
               asChild
               isActive={isActive('/cases')} 
               icon={<Briefcase />}
-              tooltip={{ children: 'Cases' }}
+              tooltip={{ children: 'Casos' }}
             >
-              <Link href="/cases">Cases</Link>
+              <Link href="/cases">Casos</Link>
             </SidebarMenuButton>
           </SidebarMenuItem>
            <SidebarMenuItem>
@@ -70,9 +70,9 @@ export function DashboardNav() {
               asChild
               isActive={isActive('/settings')} 
               icon={<Settings />}
-              tooltip={{ children: 'Settings' }}
+              tooltip={{ children: 'Configuración' }}
             >
-              <Link href="/settings">Settings</Link>
+              <Link href="/settings">Configuración</Link>
             </SidebarMenuButton>
           </SidebarMenuItem>
         </SidebarMenu>
@@ -82,13 +82,13 @@ export function DashboardNav() {
         <div className="flex items-center justify-between p-2">
             <div className="flex items-center gap-3">
                 <Avatar className="h-9 w-9">
-                    <AvatarImage src="https://placehold.co/40x40.png" alt="@lawyer" />
-                    <AvatarFallback>JD</AvatarFallback>
+                    <AvatarImage src="https://placehold.co/40x40.png" alt="@abogado" />
+                    <AvatarFallback>JP</AvatarFallback>
                 </Avatar>
                 {state === 'expanded' && (
                     <div className="flex flex-col">
-                        <span className="text-sm font-medium text-sidebar-foreground">John Doe</span>
-                        <span className="text-xs text-muted-foreground">john.doe@lawfirm.com</span>
+                        <span className="text-sm font-medium text-sidebar-foreground">Juan Pérez</span>
+                        <span className="text-xs text-muted-foreground">juan.perez@bufete.com</span>
                     </div>
                  )}
             </div>

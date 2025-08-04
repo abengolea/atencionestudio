@@ -16,33 +16,33 @@ export default function LoginPage() {
               <Gavel className="h-6 w-6 text-primary" />
               <h1 className="text-3xl font-bold font-headline">CaseClarity</h1>
             </div>
-            <p className="text-balance text-muted-foreground">Enter your email below to login to your account</p>
+            <p className="text-balance text-muted-foreground">Introduce tu email para iniciar sesión en tu cuenta</p>
           </div>
           <div className="grid gap-4">
             <div className="grid gap-2">
               <Label htmlFor="email">Email</Label>
-              <Input id="email" type="email" placeholder="m@example.com" required />
+              <Input id="email" type="email" placeholder="m@ejemplo.com" required />
             </div>
             <div className="grid gap-2">
               <div className="flex items-center">
-                <Label htmlFor="password">Password</Label>
+                <Label htmlFor="password">Contraseña</Label>
                 <Link href="#" className="ml-auto inline-block text-sm underline">
-                  Forgot your password?
+                  ¿Olvidaste tu contraseña?
                 </Link>
               </div>
               <Input id="password" type="password" required />
             </div>
             <Button type="submit" className="w-full" asChild>
-              <Link href="/dashboard">Login</Link>
+              <Link href="/dashboard">Iniciar Sesión</Link>
             </Button>
             <Button variant="outline" className="w-full">
-              Login with Google
+              Iniciar Sesión con Google
             </Button>
           </div>
           <div className="mt-4 text-center text-sm">
-            Don&apos;t have an account?{' '}
+            ¿No tienes una cuenta?{' '}
             <Link href="/register" className="underline">
-              Sign up
+              Regístrate
             </Link>
           </div>
         </div>

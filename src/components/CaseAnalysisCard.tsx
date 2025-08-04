@@ -18,24 +18,24 @@ export function CaseAnalysisCard({ analysis }: CaseAnalysisCardProps) {
   return (
     <Card>
       <CardHeader>
-        <CardTitle className="font-headline">AI Case Analysis</CardTitle>
-        <CardDescription>Automated assessment of the case viability.</CardDescription>
+        <CardTitle className="font-headline">Análisis de Caso por IA</CardTitle>
+        <CardDescription>Evaluación automatizada de la viabilidad del caso.</CardDescription>
       </CardHeader>
       <CardContent className="space-y-6">
         <div>
-          <h4 className="font-semibold mb-2">Summary</h4>
+          <h4 className="font-semibold mb-2">Resumen</h4>
           <p className="text-sm text-muted-foreground">{analysis.summary}</p>
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div>
-                <h4 className="font-semibold mb-2 flex items-center gap-2"><ThumbsUp className="text-green-500" size={18}/>Strengths</h4>
+                <h4 className="font-semibold mb-2 flex items-center gap-2"><ThumbsUp className="text-green-500" size={18}/>Fortalezas</h4>
                 <ul className="list-disc list-inside space-y-1 text-sm text-muted-foreground">
                     {analysis.strengths.map((s, i) => <li key={i}>{s}</li>)}
                 </ul>
             </div>
             <div>
-                <h4 className="font-semibold mb-2 flex items-center gap-2"><ThumbsDown className="text-red-500" size={18}/>Weaknesses</h4>
+                <h4 className="font-semibold mb-2 flex items-center gap-2"><ThumbsDown className="text-red-500" size={18}/>Debilidades</h4>
                 <ul className="list-disc list-inside space-y-1 text-sm text-muted-foreground">
                     {analysis.weaknesses.map((w, i) => <li key={i}>{w}</li>)}
                 </ul>
@@ -43,24 +43,24 @@ export function CaseAnalysisCard({ analysis }: CaseAnalysisCardProps) {
         </div>
 
         <div>
-            <h4 className="font-semibold mb-2 flex items-center gap-2"><Lightbulb className="text-yellow-500" size={18}/>Recommendations</h4>
+            <h4 className="font-semibold mb-2 flex items-center gap-2"><Lightbulb className="text-yellow-500" size={18}/>Recomendaciones</h4>
             <p className="text-sm text-muted-foreground">{analysis.recommendations}</p>
         </div>
 
         <div className="space-y-4">
             <div>
                 <div className="flex justify-between items-center mb-1">
-                    <h4 className="font-semibold text-sm">Success Probability</h4>
+                    <h4 className="font-semibold text-sm">Probabilidad de Éxito</h4>
                     <span className="font-bold text-sm">{analysis.successProbability}%</span>
                 </div>
                 <Progress value={analysis.successProbability} className="h-2 [&>div]:bg-green-500" />
             </div>
             <div className="flex justify-between text-sm">
-                <div className="font-semibold">Complexity</div>
+                <div className="font-semibold">Complejidad</div>
                 <Badge variant="outline">{analysis.complexity}</Badge>
             </div>
             <div className="flex justify-between text-sm">
-                <div className="font-semibold">Estimated Duration</div>
+                <div className="font-semibold">Duración Estimada</div>
                 <span className="text-muted-foreground">{analysis.estimatedDuration}</span>
             </div>
         </div>

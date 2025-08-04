@@ -15,26 +15,26 @@ import {z} from 'genkit';
 const AnalyzeCaseInputSchema = z.object({
   caseDetails: z
     .string()
-    .describe('Comprehensive details of the legal case provided by the client.'),
+    .describe('Detalles completos del caso legal proporcionados por el cliente.'),
 });
 export type AnalyzeCaseInput = z.infer<typeof AnalyzeCaseInputSchema>;
 
 const AnalyzeCaseOutputSchema = z.object({
-  summary: z.string().describe('A brief summary of the legal case.'),
-  strengths: z.array(z.string()).describe('Key strengths of the case.'),
-  weaknesses: z.array(z.string()).describe('Potential weaknesses of the case.'),
+  summary: z.string().describe('Un breve resumen del caso legal.'),
+  strengths: z.array(z.string()).describe('Fortalezas clave del caso.'),
+  weaknesses: z.array(z.string()).describe('Debilidades potenciales del caso.'),
   successProbability: z
     .number()
     .min(0)
     .max(100)
-    .describe('Estimated probability of success (0-100).'),
+    .describe('Probabilidad estimada de éxito (0-100).'),
   estimatedDuration: z
     .string()
-    .describe('Estimated duration for resolving the case.'),
+    .describe('Duración estimada para resolver el caso.'),
   complexity: z
     .enum(['simple', 'medium', 'complex'])
-    .describe('The complexity level of the legal case.'),
-  recommendations: z.string().describe('Specific recommendations for the lawyer.'),
+    .describe('El nivel de complejidad del caso legal.'),
+  recommendations: z.string().describe('Recomendaciones específicas para el abogado.'),
 });
 export type AnalyzeCaseOutput = z.infer<typeof AnalyzeCaseOutputSchema>;
 
@@ -46,15 +46,15 @@ const analyzeCasePrompt = ai.definePrompt({
   name: 'analyzeCasePrompt',
   input: {schema: AnalyzeCaseInputSchema},
   output: {schema: AnalyzeCaseOutputSchema},
-  prompt: `You are an expert legal assistant analyzing a legal case for a lawyer.
+  prompt: `Eres un asistente legal experto analizando un caso para un abogado.
 
-  Based on the details provided, generate a summary, identify strengths and weaknesses,
-  estimate the probability of success, the estimated duration, the complexity, and provide recommendations.
+  Basado en los detalles proporcionados, genera un resumen, identifica fortalezas y debilidades,
+  estima la probabilidad de éxito, la duración estimada, la complejidad y proporciona recomendaciones.
 
-  Case Details: {{{caseDetails}}}
+  Detalles del Caso: {{{caseDetails}}}
 
-  Respond in a professional and concise manner. Focus on providing actionable insights for the lawyer.
-  Ensure that the successProbability field is a number between 0 and 100.
+  Responde de manera profesional y concisa. Enfócate en proporcionar información útil para el abogado.
+  Asegúrate de que el campo successProbability sea un número entre 0 y 100.
 `,
 });
 

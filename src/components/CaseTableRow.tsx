@@ -29,18 +29,19 @@ export function CaseTableRow({ caseItem }: CaseTableRowProps) {
         <Badge variant="outline">{caseItem.caseDetails.type}</Badge>
       </TableCell>
       <TableCell>
-        <Badge variant={caseItem.caseDetails.urgency === 'high' ? 'destructive' : 'secondary'}>
+        <Badge variant={caseItem.caseDetails.urgency === 'alta' ? 'destructive' : 'secondary'}>
           {caseItem.caseDetails.urgency}
         </Badge>
       </TableCell>
       <TableCell>
         <CaseStatusBadge status={caseItem.lawyerDecision.status} />
       </TableCell>
-      <TableCell>{new Date(caseItem.createdAt).toLocaleDateString('en-US', { dateStyle: 'short' })}</TableCell>
+      <TableCell>{new Date(caseItem.createdAt).toLocaleDateString('es-ES', { dateStyle: 'short' })}</TableCell>
       <TableCell className="text-right">
-        {new Intl.NumberFormat('en-US', {
+        {new Intl.NumberFormat('es-ES', {
           style: 'currency',
           currency: 'USD',
+          minimumFractionDigits: 0,
         }).format(caseItem.caseDetails.estimatedValue)}
       </TableCell>
     </TableRow>
@@ -66,14 +67,14 @@ export function RecentCaseTableRow({ caseItem }: CaseTableRowProps) {
             <Badge variant="outline">{caseItem.caseDetails.type}</Badge>
             </TableCell>
             <TableCell>
-            <Badge variant={caseItem.caseDetails.urgency === 'high' ? 'destructive' : 'secondary'}>
+            <Badge variant={caseItem.caseDetails.urgency === 'alta' ? 'destructive' : 'secondary'}>
                 {caseItem.caseDetails.urgency}
             </Badge>
             </TableCell>
             <TableCell>
             <CaseStatusBadge status={caseItem.lawyerDecision.status} />
             </TableCell>
-            <TableCell>{new Date(caseItem.createdAt).toLocaleDateString('en-US', { dateStyle: 'short' })}</TableCell>
+            <TableCell>{new Date(caseItem.createdAt).toLocaleDateString('es-ES', { dateStyle: 'short' })}</TableCell>
       </TableRow>
     );
   }

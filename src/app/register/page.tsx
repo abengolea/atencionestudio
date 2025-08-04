@@ -14,56 +14,56 @@ export default function RegisterPage() {
         <Card className="mx-auto w-full max-w-lg">
           <CardHeader>
             <Logo />
-            <CardTitle className="text-2xl font-headline mt-4">Create your Account</CardTitle>
-            <CardDescription>Enter your information to create an account and start filtering cases.</CardDescription>
+            <CardTitle className="text-2xl font-headline mt-4">Crea tu Cuenta</CardTitle>
+            <CardDescription>Introduce tu información para crear una cuenta y empezar a filtrar casos.</CardDescription>
           </CardHeader>
           <CardContent>
             <div className="grid gap-4">
               <div className="grid grid-cols-2 gap-4">
                 <div className="grid gap-2">
-                  <Label htmlFor="first-name">First name</Label>
-                  <Input id="first-name" placeholder="John" required />
+                  <Label htmlFor="first-name">Nombre</Label>
+                  <Input id="first-name" placeholder="Juan" required />
                 </div>
                 <div className="grid gap-2">
-                  <Label htmlFor="last-name">Last name</Label>
-                  <Input id="last-name" placeholder="Doe" required />
+                  <Label htmlFor="last-name">Apellido</Label>
+                  <Input id="last-name" placeholder="Pérez" required />
                 </div>
               </div>
               <div className="grid gap-2">
                 <Label htmlFor="email">Email</Label>
-                <Input id="email" type="email" placeholder="m@example.com" required />
+                <Input id="email" type="email" placeholder="m@ejemplo.com" required />
               </div>
               <div className="grid gap-2">
-                <Label htmlFor="license">License Number</Label>
+                <Label htmlFor="license">Número de Licencia</Label>
                 <Input id="license" placeholder="P1234567" required />
               </div>
                <div className="grid gap-2">
-                  <Label htmlFor="specialization">Primary Specialization</Label>
+                  <Label htmlFor="specialization">Especialización Principal</Label>
                   <Select>
                     <SelectTrigger>
-                      <SelectValue placeholder="Select a specialization" />
+                      <SelectValue placeholder="Selecciona una especialización" />
                     </SelectTrigger>
                     <SelectContent>
                       <SelectItem value="civil">Civil</SelectItem>
                       <SelectItem value="penal">Penal</SelectItem>
                       <SelectItem value="laboral">Laboral</SelectItem>
-                      <SelectItem value="family">Family Law</SelectItem>
-                      <SelectItem value="corporate">Corporate</SelectItem>
+                      <SelectItem value="family">Familiar</SelectItem>
+                      <SelectItem value="corporate">Corporativo</SelectItem>
                     </SelectContent>
                   </Select>
                 </div>
               <div className="grid gap-2">
-                <Label htmlFor="password">Password</Label>
+                <Label htmlFor="password">Contraseña</Label>
                 <Input id="password" type="password" />
               </div>
               <Button type="submit" className="w-full" asChild>
-                <Link href="/dashboard">Create an account</Link>
+                <Link href="/dashboard">Crear una cuenta</Link>
               </Button>
             </div>
             <div className="mt-4 text-center text-sm">
-              Already have an account?{' '}
+              ¿Ya tienes una cuenta?{' '}
               <Link href="/" className="underline">
-                Sign in
+                Inicia sesión
               </Link>
             </div>
           </CardContent>

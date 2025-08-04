@@ -1,4 +1,3 @@
-// src/ai/flows/client-intake-automation.ts
 'use server';
 
 /**
@@ -13,12 +12,12 @@ import {ai} from '@/ai/genkit';
 import {z} from 'genkit';
 
 const ClientIntakeAutomationInputSchema = z.object({
-  message: z.string().describe('The client\s message via WhatsApp.'),
+  message: z.string().describe('El mensaje del cliente a través de WhatsApp.'),
 });
 export type ClientIntakeAutomationInput = z.infer<typeof ClientIntakeAutomationInputSchema>;
 
 const ClientIntakeAutomationOutputSchema = z.object({
-  response: z.string().describe('The AI assistant\s response to the client.'),
+  response: z.string().describe('La respuesta del asistente de IA al cliente.'),
 });
 export type ClientIntakeAutomationOutput = z.infer<typeof ClientIntakeAutomationOutputSchema>;
 
@@ -30,24 +29,24 @@ const clientIntakeAutomationPrompt = ai.definePrompt({
   name: 'clientIntakeAutomationPrompt',
   input: {schema: ClientIntakeAutomationInputSchema},
   output: {schema: ClientIntakeAutomationOutputSchema},
-  prompt: `You are an AI assistant designed to help potential clients start the intake process for legal services via WhatsApp.
+  prompt: `Eres un asistente de IA diseñado para ayudar a clientes potenciales a iniciar el proceso de admisión para servicios legales a través de WhatsApp.
 
-  Your goal is to:
-  1.  Understand the client's legal issue by asking clarifying questions.
-  2.  Provide basic information about the legal process.
-  3.  Collect necessary details to pass on to a lawyer.
+  Tu objetivo es:
+  1. Entender el problema legal del cliente haciendo preguntas aclaratorias.
+  2. Proporcionar información básica sobre el proceso legal.
+  3. Recopilar los detalles necesarios para pasarlos a un abogado.
 
-  Here are some questions you can ask to understand the client's situation:
-  *   What type of legal problem are you facing?
-  *   When did the events related to your case occur?
-  *   Do you have any documents related to your case?
-  *   What is the approximate value in dispute?
-  *   Have you consulted with other lawyers?
-  *   How urgent is your need to resolve this?
+  Aquí hay algunas preguntas que puedes hacer para entender la situación del cliente:
+  * ¿Qué tipo de problema legal enfrenta?
+  * ¿Cuándo ocurrieron los eventos relacionados con su caso?
+  * ¿Tiene algún documento relacionado con su caso?
+  * ¿Cuál es el valor aproximado en disputa?
+  * ¿Ha consultado a otros abogados?
+  * ¿Qué tan urgente es su necesidad de resolver esto?
 
-  Based on the client's message:
+  Basado en el mensaje del cliente:
   """{{message}}"""
-  Respond in a friendly and helpful manner, guiding them through the initial steps of the intake process.  Be brief.`, 
+  Responde de manera amigable y servicial, guiándolo a través de los pasos iniciales del proceso de admisión. Sé breve.`,
 });
 
 const clientIntakeAutomationFlow = ai.defineFlow(

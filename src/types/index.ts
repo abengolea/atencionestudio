@@ -10,7 +10,7 @@ export type Case = {
   caseDetails: {
     type: string;
     description: string;
-    urgency: "low" | "medium" | "high";
+    urgency: "baja" | "media" | "alta";
     estimatedValue: number;
     documents: { name: string; url: string }[];
     timeline: string;
@@ -22,7 +22,7 @@ export type Case = {
     recommendations: string;
     successProbability: number;
     estimatedDuration: string;
-    complexity: "simple" | "medium" | "complex";
+    complexity: "simple" | "media" | "compleja";
   };
   conversation: {
     messages: {
@@ -31,10 +31,10 @@ export type Case = {
       timestamp: Date;
       type: "text" | "audio" | "image" | "document";
     }[];
-    status: "ongoing" | "completed" | "abandoned";
+    status: "en curso" | "completado" | "abandonado";
   };
   lawyerDecision: {
-    status: "pending" | "accepted" | "rejected";
+    status: "pendiente" | "aceptado" | "rechazado";
     decision: string;
     timestamp: Date;
     notes: string;
