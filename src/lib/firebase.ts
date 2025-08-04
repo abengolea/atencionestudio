@@ -5,12 +5,12 @@ import {getAuth} from 'firebase/auth';
 
 // Your web app's Firebase configuration
 const firebaseConfig = {
-  apiKey: 'fake-api-key',
-  authDomain: 'test-project.firebaseapp.com',
-  projectId: 'test-project',
-  storageBucket: 'test-project.appspot.com',
-  messagingSenderId: '123456789',
-  appId: '1:123456789:web:abcdef123456789',
+  apiKey: 'AIzaSyChpcY_uC9sMvjHpy_N51uS89lqwZJfbV0',
+  authDomain: 'adrian-legal-studio.firebaseapp.com',
+  projectId: 'adrian-legal-studio',
+  storageBucket: 'adrian-legal-studio.appspot.com',
+  messagingSenderId: '159675272421',
+  appId: '1:159675272421:web:d259c6c52a51f382a2089b',
 };
 
 // Initialize Firebase
