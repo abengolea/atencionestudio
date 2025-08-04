@@ -89,10 +89,18 @@ export default function NewUserPage() {
       router.push('/admin');
     } catch (error: any) {
       console.error('Error creating user:', error);
+      let description = 'Ocurrió un error inesperado.';
+      if (error.code === 'auth/email-already-in-use') {
+        description = 'Este correo electrónico ya está en uso. Por favor, utilice otro.';
+        form.setError('email', {
+            type: 'manual',
+            message: 'Este correo electrónico ya está registrado.',
+        });
+      }
       toast({
         variant: 'destructive',
         title: 'Error al Crear Usuario',
-        description: error.message || 'Ocurrió un error inesperado.',
+        description: description,
       });
     } finally {
       setIsLoading(false);
