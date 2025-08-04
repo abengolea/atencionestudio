@@ -36,37 +36,34 @@ export function DashboardNav() {
       <SidebarContent>
         <SidebarMenu>
           <SidebarMenuItem>
-            <Link href="/dashboard" legacyBehavior passHref>
-              <SidebarMenuButton
-                isActive={isActive('/dashboard')}
-                icon={<LayoutDashboard />}
-                tooltip={{ children: 'Dashboard' }}
-              >
-                Dashboard
-              </SidebarMenuButton>
-            </Link>
+            <SidebarMenuButton
+              asChild
+              isActive={isActive('/dashboard')}
+              icon={<LayoutDashboard />}
+              tooltip={{ children: 'Dashboard' }}
+            >
+              <Link href="/dashboard">Dashboard</Link>
+            </SidebarMenuButton>
           </SidebarMenuItem>
           <SidebarMenuItem>
-            <Link href="/cases" legacyBehavior passHref>
-              <SidebarMenuButton 
-                isActive={isActive('/cases')} 
-                icon={<Briefcase />}
-                tooltip={{ children: 'Cases' }}
-              >
-                Cases
-              </SidebarMenuButton>
-            </Link>
+            <SidebarMenuButton
+              asChild
+              isActive={isActive('/cases')} 
+              icon={<Briefcase />}
+              tooltip={{ children: 'Cases' }}
+            >
+              <Link href="/cases">Cases</Link>
+            </SidebarMenuButton>
           </SidebarMenuItem>
           <SidebarMenuItem>
-            <Link href="/settings" legacyBehavior passHref>
-              <SidebarMenuButton 
-                isActive={isActive('/settings')} 
-                icon={<Settings />}
-                tooltip={{ children: 'Settings' }}
-              >
-                Settings
-              </SidebarMenuButton>
-            </Link>
+            <SidebarMenuButton
+              asChild
+              isActive={isActive('/settings')} 
+              icon={<Settings />}
+              tooltip={{ children: 'Settings' }}
+            >
+              <Link href="/settings">Settings</Link>
+            </SidebarMenuButton>
           </SidebarMenuItem>
         </SidebarMenu>
       </SidebarContent>
