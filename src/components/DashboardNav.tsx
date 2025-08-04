@@ -23,7 +23,7 @@ export function DashboardNav() {
   const { state } = useSidebar();
 
   const isActive = (path: string) => {
-    return pathname === path;
+    return pathname.startsWith(path) && (path !== '/' || pathname === '/');
   };
 
   return (
