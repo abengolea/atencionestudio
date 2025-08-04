@@ -10,7 +10,7 @@ const firebaseConfig = {
   projectId: 'atencion-estudio-juridic-53354',
   storageBucket: 'atencion-estudio-juridic-53354.appspot.com',
   messagingSenderId: '171236726689',
-  appId: '1:171236726689:web:d259c6c52a51f382a2089b', // AppId is often optional but good to have
+  appId: '1:171236726689:web:d259c6c52a51f382a2089b',
 };
 
 // Initialize Firebase
