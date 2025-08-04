@@ -1,13 +1,93 @@
+
+'use client';
+
 import Link from 'next/link';
+import { useRouter } from 'next/navigation';
+import { useForm } from 'react-hook-form';
+import { zodResolver } from '@hookform/resolvers/zod';
+import * as z from 'zod';
+import { createUserWithEmailAndPassword } from 'firebase/auth';
+import { doc, setDoc } from 'firebase/firestore';
+import { auth, db } from '@/lib/firebase';
+
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import Image from 'next/image';
 import { Logo } from '@/components/Logo';
+import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
+import { useToast } from '@/hooks/use-toast';
+import { useState } from 'react';
+
+const registerSchema = z.object({
+  firstName: z.string().min(1, 'El nombre es requerido'),
+  lastName: z.string().min(1, 'El apellido es requerido'),
+  email: z.string().email('El email no es válido'),
+  license: z.string().min(1, 'El número de licencia es requerido'),
+  specialization: z.string({ required_error: 'La especialización es requerida' }),
+  password: z.string().min(6, 'La contraseña debe tener al menos 6 caracteres'),
+});
+
+type RegisterFormValues = z.infer<typeof registerSchema>;
 
 export default function RegisterPage() {
+  const router = useRouter();
+  const { toast } = useToast();
+  const [isLoading, setIsLoading] = useState(false);
+
+  const form = useForm<RegisterFormValues>({
+    resolver: zodResolver(registerSchema),
+    defaultValues: {
+      firstName: '',
+      lastName: '',
+      email: '',
+      license: '',
+      password: '',
+    },
+  });
+
+  const onSubmit = async (data: RegisterFormValues) => {
+    setIsLoading(true);
+    try {
+      const userCredential = await createUserWithEmailAndPassword(auth, data.email, data.password);
+      const user = userCredential.user;
+
+      await setDoc(doc(db, 'users', user.uid), {
+        name: `${data.firstName} ${data.lastName}`,
+        email: data.email,
+        license: data.license,
+        specialization: data.specialization,
+        role: 'abogado', // Default role for self-registration
+        status: 'activo', // Default status for new users
+        phone: '', // Phone can be added later
+      });
+
+      toast({
+        title: '¡Registro Exitoso!',
+        description: 'Tu cuenta ha sido creada. Bienvenido.',
+      });
+      router.push('/dashboard');
+    } catch (error: any) {
+      console.error('Error creating user:', error);
+      let description = 'Ocurrió un error inesperado.';
+      if (error.code === 'auth/email-already-in-use') {
+        description = 'Este correo electrónico ya está en uso por otra cuenta.';
+        form.setError('email', {
+          type: 'manual',
+          message: 'Este correo electrónico ya está registrado.',
+        });
+      }
+      toast({
+        variant: 'destructive',
+        title: 'Error en el Registro',
+        description,
+      });
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
   return (
     <div className="w-full lg:grid lg:min-h-screen lg:grid-cols-2 xl:min-h-screen">
       <div className="flex items-center justify-center py-12">
@@ -18,48 +98,104 @@ export default function RegisterPage() {
             <CardDescription>Introduce tu información para crear una cuenta y empezar a filtrar casos.</CardDescription>
           </CardHeader>
           <CardContent>
-            <div className="grid gap-4">
-              <div className="grid grid-cols-2 gap-4">
-                <div className="grid gap-2">
-                  <Label htmlFor="first-name">Nombre</Label>
-                  <Input id="first-name" placeholder="Juan" required />
+            <Form {...form}>
+              <form onSubmit={form.handleSubmit(onSubmit)} className="grid gap-4">
+                <div className="grid grid-cols-2 gap-4">
+                  <FormField
+                    control={form.control}
+                    name="firstName"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Nombre</FormLabel>
+                        <FormControl>
+                          <Input placeholder="Juan" {...field} />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                  <FormField
+                    control={form.control}
+                    name="lastName"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Apellido</FormLabel>
+                        <FormControl>
+                          <Input placeholder="Pérez" {...field} />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
                 </div>
-                <div className="grid gap-2">
-                  <Label htmlFor="last-name">Apellido</Label>
-                  <Input id="last-name" placeholder="Pérez" required />
-                </div>
-              </div>
-              <div className="grid gap-2">
-                <Label htmlFor="email">Email</Label>
-                <Input id="email" type="email" placeholder="m@ejemplo.com" required />
-              </div>
-              <div className="grid gap-2">
-                <Label htmlFor="license">Número de Licencia</Label>
-                <Input id="license" placeholder="P1234567" required />
-              </div>
-               <div className="grid gap-2">
-                  <Label htmlFor="specialization">Especialización Principal</Label>
-                  <Select>
-                    <SelectTrigger>
-                      <SelectValue placeholder="Selecciona una especialización" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="civil">Civil</SelectItem>
-                      <SelectItem value="penal">Penal</SelectItem>
-                      <SelectItem value="laboral">Laboral</SelectItem>
-                      <SelectItem value="family">Familiar</SelectItem>
-                      <SelectItem value="corporate">Corporativo</SelectItem>
-                    </SelectContent>
-                  </Select>
-                </div>
-              <div className="grid gap-2">
-                <Label htmlFor="password">Contraseña</Label>
-                <Input id="password" type="password" />
-              </div>
-              <Button type="submit" className="w-full" asChild>
-                <Link href="/dashboard">Crear una cuenta</Link>
-              </Button>
-            </div>
+                <FormField
+                  control={form.control}
+                  name="email"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Email</FormLabel>
+                      <FormControl>
+                        <Input type="email" placeholder="m@ejemplo.com" {...field} />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+                <FormField
+                  control={form.control}
+                  name="license"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Número de Licencia</FormLabel>
+                      <FormControl>
+                        <Input placeholder="P1234567" {...field} />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+                <FormField
+                  control={form.control}
+                  name="specialization"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Especialización Principal</FormLabel>
+                      <Select onValueChange={field.onChange} defaultValue={field.value}>
+                        <FormControl>
+                          <SelectTrigger>
+                            <SelectValue placeholder="Selecciona una especialización" />
+                          </SelectTrigger>
+                        </FormControl>
+                        <SelectContent>
+                          <SelectItem value="civil">Civil</SelectItem>
+                          <SelectItem value="penal">Penal</SelectItem>
+                          <SelectItem value="laboral">Laboral</SelectItem>
+                          <SelectItem value="family">Familiar</SelectItem>
+                          <SelectItem value="corporate">Corporativo</SelectItem>
+                        </SelectContent>
+                      </Select>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+                <FormField
+                  control={form.control}
+                  name="password"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Contraseña</FormLabel>
+                      <FormControl>
+                        <Input type="password" {...field} />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+                <Button type="submit" className="w-full" disabled={isLoading}>
+                  {isLoading ? 'Creando cuenta...' : 'Crear una cuenta'}
+                </Button>
+              </form>
+            </Form>
             <div className="mt-4 text-center text-sm">
               ¿Ya tienes una cuenta?{' '}
               <Link href="/" className="underline">
