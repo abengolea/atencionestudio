@@ -36,7 +36,7 @@ export function CaseTableRow({ caseItem }: CaseTableRowProps) {
       <TableCell>
         <CaseStatusBadge status={caseItem.lawyerDecision.status} />
       </TableCell>
-      <TableCell>{new Date(caseItem.createdAt).toLocaleDateString()}</TableCell>
+      <TableCell>{new Date(caseItem.createdAt).toLocaleDateString('en-US', { dateStyle: 'short' })}</TableCell>
       <TableCell className="text-right">
         {new Intl.NumberFormat('en-US', {
           style: 'currency',
@@ -73,7 +73,7 @@ export function RecentCaseTableRow({ caseItem }: CaseTableRowProps) {
             <TableCell>
             <CaseStatusBadge status={caseItem.lawyerDecision.status} />
             </TableCell>
-            <TableCell>{new Date(caseItem.createdAt).toLocaleDateString()}</TableCell>
+            <TableCell>{new Date(caseItem.createdAt).toLocaleDateString('en-US', { dateStyle: 'short' })}</TableCell>
       </TableRow>
     );
   }

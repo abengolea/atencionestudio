@@ -31,7 +31,7 @@ export default function CaseDetailPage({ params }: { params: { id: string } }) {
           <div>
             <h1 className="text-3xl font-bold font-headline">Case Details: {caseData.id}</h1>
             <p className="text-muted-foreground">
-              Received on {new Date(caseData.createdAt).toLocaleDateString()}
+              Received on {new Date(caseData.createdAt).toLocaleDateString('en-US', { dateStyle: 'long' })}
             </p>
           </div>
           <CaseStatusBadge status={lawyerDecision.status} />
