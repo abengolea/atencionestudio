@@ -20,7 +20,7 @@ import {
   TabsTrigger,
 } from '@/components/ui/tabs';
 import { Badge } from '@/components/ui/badge';
-import { CaseStatusBadge } from '@/components/CaseStatusBadge';
+import { CaseTableRow } from '@/components/CaseTableRow';
 import { mockCases } from '@/lib/mock-data';
 import { Input } from '@/components/ui/input';
 import { Search } from 'lucide-react';
@@ -47,32 +47,7 @@ export default function CasesPage() {
             </TableHeader>
             <TableBody>
               {filteredCases.map((caseItem) => (
-                <TableRow key={caseItem.id} className="cursor-pointer" onClick={() => (window.location.href = `/cases/${caseItem.id}`)}>
-                  <TableCell>
-                    <div className="font-medium">{caseItem.clientInfo.name}</div>
-                    <div className="hidden text-sm text-muted-foreground md:inline">
-                      {caseItem.clientInfo.email}
-                    </div>
-                  </TableCell>
-                  <TableCell>
-                    <Badge variant="outline">{caseItem.caseDetails.type}</Badge>
-                  </TableCell>
-                  <TableCell>
-                    <Badge variant={caseItem.caseDetails.urgency === 'high' ? 'destructive' : 'secondary'}>
-                      {caseItem.caseDetails.urgency}
-                    </Badge>
-                  </TableCell>
-                  <TableCell>
-                    <CaseStatusBadge status={caseItem.lawyerDecision.status} />
-                  </TableCell>
-                  <TableCell>{new Date(caseItem.createdAt).toLocaleDateString()}</TableCell>
-                  <TableCell className="text-right">
-                    {new Intl.NumberFormat('en-US', {
-                      style: 'currency',
-                      currency: 'USD',
-                    }).format(caseItem.caseDetails.estimatedValue)}
-                  </TableCell>
-                </TableRow>
+                <CaseTableRow key={caseItem.id} caseItem={caseItem} />
               ))}
             </TableBody>
           </Table>

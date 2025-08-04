@@ -19,6 +19,7 @@ import { Button } from '@/components/ui/button';
 import { Briefcase, CheckCircle, XCircle, Clock, ArrowUpRight } from 'lucide-react';
 import { CaseStatusBadge } from '@/components/CaseStatusBadge';
 import { mockCases } from '@/lib/mock-data';
+import { RecentCaseTableRow } from '@/components/CaseTableRow';
 
 export default function Dashboard() {
   const recentCases = mockCases.slice(0, 5);
@@ -105,26 +106,7 @@ export default function Dashboard() {
             </TableHeader>
             <TableBody>
               {recentCases.map((caseItem) => (
-                <TableRow key={caseItem.id} className="cursor-pointer" onClick={() => (window.location.href = `/cases/${caseItem.id}`)}>
-                  <TableCell>
-                    <div className="font-medium">{caseItem.clientInfo.name}</div>
-                    <div className="hidden text-sm text-muted-foreground md:inline">
-                      {caseItem.clientInfo.email}
-                    </div>
-                  </TableCell>
-                  <TableCell>
-                    <Badge variant="outline">{caseItem.caseDetails.type}</Badge>
-                  </TableCell>
-                  <TableCell>
-                    <Badge variant={caseItem.caseDetails.urgency === 'high' ? 'destructive' : 'secondary'}>
-                      {caseItem.caseDetails.urgency}
-                    </Badge>
-                  </TableCell>
-                  <TableCell>
-                    <CaseStatusBadge status={caseItem.lawyerDecision.status} />
-                  </TableCell>
-                  <TableCell>{new Date(caseItem.createdAt).toLocaleDateString()}</TableCell>
-                </TableRow>
+                <RecentCaseTableRow key={caseItem.id} caseItem={caseItem} />
               ))}
             </TableBody>
           </Table>
