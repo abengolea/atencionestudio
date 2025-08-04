@@ -1,3 +1,7 @@
+
+'use client';
+
+import { useState } from 'react';
 import {
   Card,
   CardContent,
@@ -21,8 +25,14 @@ import {
 } from '@/components/ui/tabs';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
-import { Cpu, Database, Edit, Trash2, Users, CheckCircle, XCircle, FileText, Shield, MessageSquare } from 'lucide-react';
+import { Cpu, Database, Edit, Trash2, Users, CheckCircle, XCircle, FileText, Shield, MessageSquare, Bot, Send } from 'lucide-react';
 import { Textarea } from '@/components/ui/textarea';
+import { Input } from '@/components/ui/input';
+import { clientIntakeAutomation } from '@/ai/flows/client-intake-automation';
+import { cn } from '@/lib/utils';
+import { ScrollArea } from '@/components/ui/scroll-area';
+import { Avatar, AvatarFallback } from '@/components/ui/avatar';
+
 
 const mockUsers = [
   { id: 'USR001', name: 'Juan Pérez', email: 'juan.perez@bufete.com', role: 'Abogado', status: 'activo' },
@@ -76,6 +86,120 @@ const getSystemStatusColor = (status: string) => {
     }
 }
 
+type Message = {
+    role: 'user' | 'model';
+    content: string;
+};
+
+function AITestChat() {
+    const [messages, setMessages] = useState<Message[]>([]);
+    const [input, setInput] = useState('');
+    const [isLoading, setIsLoading] = useState(false);
+
+    const handleSendMessage = async (e: React.FormEvent<HTMLFormElement>) => {
+        e.preventDefault();
+        if (!input.trim() || isLoading) return;
+
+        const userMessage: Message = { role: 'user', content: input };
+        setMessages(prev => [...prev, userMessage]);
+        setInput('');
+        setIsLoading(true);
+
+        try {
+            const conversationHistory = messages.map(msg => ({
+                role: msg.role,
+                content: msg.content
+            }));
+            
+            const result = await clientIntakeAutomation({
+                message: input,
+                conversationHistory,
+            });
+
+            const aiMessage: Message = { role: 'model', content: result.response };
+            setMessages(prev => [...prev, aiMessage]);
+        } catch (error) {
+            console.error("Error calling AI:", error);
+            const errorMessage: Message = { role: 'model', content: "Lo siento, ha ocurrido un error. Por favor, inténtalo de nuevo." };
+            setMessages(prev => [...prev, errorMessage]);
+        } finally {
+            setIsLoading(false);
+        }
+    };
+
+    return (
+        <Card>
+            <CardHeader>
+                <CardTitle>Test de IA Conversacional</CardTitle>
+                <CardDescription>Simula una conversación con el asistente legal de IA.</CardDescription>
+            </CardHeader>
+            <CardContent>
+                <div className="border rounded-lg h-[60vh] flex flex-col">
+                    <ScrollArea className="flex-1 p-4">
+                        <div className="space-y-4">
+                            {messages.map((message, index) => (
+                                <div
+                                    key={index}
+                                    className={cn(
+                                        'flex items-start gap-3',
+                                        message.role === 'user' ? 'justify-end' : 'justify-start'
+                                    )}
+                                >
+                                    {message.role === 'model' && (
+                                        <Avatar className="w-8 h-8">
+                                            <AvatarFallback><Bot size={16}/></AvatarFallback>
+                                        </Avatar>
+                                    )}
+                                    <div
+                                        className={cn(
+                                            'rounded-lg px-3 py-2 text-sm max-w-md',
+                                            message.role === 'user'
+                                                ? 'bg-primary text-primary-foreground'
+                                                : 'bg-muted'
+                                        )}
+                                    >
+                                        {message.content}
+                                    </div>
+                                     {message.role === 'user' && (
+                                        <Avatar className="w-8 h-8">
+                                            <AvatarFallback>U</AvatarFallback>
+                                        </Avatar>
+                                    )}
+                                </div>
+                            ))}
+                             {isLoading && (
+                                <div className="flex items-start gap-3 justify-start">
+                                    <Avatar className="w-8 h-8">
+                                        <AvatarFallback><Bot size={16}/></AvatarFallback>
+                                    </Avatar>
+                                    <div className="bg-muted rounded-lg px-3 py-2 text-sm">
+                                        Escribiendo...
+                                    </div>
+                                </div>
+                            )}
+                        </div>
+                    </ScrollArea>
+                    <div className="p-4 border-t">
+                        <form onSubmit={handleSendMessage} className="flex items-center gap-2">
+                            <Input
+                                value={input}
+                                onChange={(e) => setInput(e.target.value)}
+                                placeholder="Escribe tu mensaje aquí..."
+                                disabled={isLoading}
+                                autoComplete="off"
+                            />
+                            <Button type="submit" disabled={isLoading || !input.trim()}>
+                                <Send size={16} />
+                            </Button>
+                        </form>
+                    </div>
+                </div>
+            </CardContent>
+        </Card>
+    );
+}
+
+
 export default function AdminPage() {
   return (
     <div className="flex flex-col gap-8">
@@ -85,10 +209,11 @@ export default function AdminPage() {
       </div>
 
       <Tabs defaultValue="users" className="w-full">
-        <TabsList className="grid w-full grid-cols-3">
+        <TabsList className="grid w-full grid-cols-4">
           <TabsTrigger value="users"><Users className="mr-2"/> Usuarios</TabsTrigger>
           <TabsTrigger value="system"><Cpu className="mr-2"/> Sistema</TabsTrigger>
           <TabsTrigger value="logs"><FileText className="mr-2"/> Registros</TabsTrigger>
+          <TabsTrigger value="ai-test"><Bot className="mr-2"/> Test IA</TabsTrigger>
         </TabsList>
 
         <TabsContent value="users">
@@ -160,7 +285,13 @@ export default function AdminPage() {
             </CardContent>
            </Card>
         </TabsContent>
+
+        <TabsContent value="ai-test">
+            <AITestChat />
+        </TabsContent>
       </Tabs>
     </div>
   );
 }
+
+    
