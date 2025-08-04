@@ -5,12 +5,12 @@ import {getAuth} from 'firebase/auth';
 
 // Your web app's Firebase configuration
 const firebaseConfig = {
-  apiKey: 'AIzaSyChpcY_uC9sMvjHpy_N51uS89lqwZJfbV0',
-  authDomain: 'adrian-legal-studio.firebaseapp.com',
-  projectId: 'adrian-legal-studio',
-  storageBucket: 'adrian-legal-studio.appspot.com',
-  messagingSenderId: '159675272421',
-  appId: '1:159675272421:web:d259c6c52a51f382a2089b',
+  apiKey: 'AIzaSyAOwVadH_j_oFzhXLGvEho7pFXhoLYxuGo',
+  authDomain: 'atencion-estudio-juridic-53354.firebaseapp.com',
+  projectId: 'atencion-estudio-juridic-53354',
+  storageBucket: 'atencion-estudio-juridic-53354.appspot.com',
+  messagingSenderId: '171236726689',
+  appId: '1:171236726689:web:d259c6c52a51f382a2089b', // AppId is often optional but good to have
 };
 
 // Initialize Firebase
