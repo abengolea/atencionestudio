@@ -37,16 +37,23 @@ interface WhatsAppMessageRequest {
 
 // Para verificar el Webhook
 export async function GET(req: NextRequest) {
+    const webhookVerifyToken = process.env.WHATSAPP_VERIFY_TOKEN;
+
+    if (!webhookVerifyToken) {
+        console.error('Error: La variable de entorno WHATSAPP_VERIFY_TOKEN no está configurada en el servidor.');
+        return new NextResponse('Internal Server Error: Missing server configuration.', { status: 500 });
+    }
+
     const searchParams = req.nextUrl.searchParams;
     const mode = searchParams.get('hub.mode');
     const token = searchParams.get('hub.verify_token');
     const challenge = searchParams.get('hub.challenge');
 
-    if (mode === 'subscribe' && token === process.env.WHATSAPP_VERIFY_TOKEN) {
+    if (mode === 'subscribe' && token === webhookVerifyToken) {
         console.log('Webhook verificado exitosamente!');
         return new NextResponse(challenge, { status: 200 });
     } else {
-        console.error('Fallo en la verificación del webhook. Asegúrate de que WHATSAPP_VERIFY_TOKEN esté configurado.');
+        console.error('Fallo en la verificación del webhook. El token no coincide.');
         return new NextResponse('Forbidden', { status: 403 });
     }
 }
@@ -93,6 +100,11 @@ async function sendWhatsAppMessage(to: string, text: string) {
     const phoneNumberId = process.env.WHATSAPP_PHONE_NUMBER_ID;
     const accessToken = process.env.WHATSAPP_ACCESS_TOKEN;
     const url = `https://graph.facebook.com/v18.0/${phoneNumberId}/messages`;
+
+    if (!phoneNumberId || !accessToken) {
+        console.error("Error: Las variables de entorno de WhatsApp (PHONE_NUMBER_ID o ACCESS_TOKEN) no están configuradas.");
+        return;
+    }
 
     const payload = {
         messaging_product: 'whatsapp',
