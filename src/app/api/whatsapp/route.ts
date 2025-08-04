@@ -40,8 +40,8 @@ export async function GET(req: NextRequest) {
     const webhookVerifyToken = process.env.WHATSAPP_VERIFY_TOKEN;
 
     if (!webhookVerifyToken) {
-        console.error('Error: La variable de entorno WHATSAPP_VERIFY_TOKEN no está configurada en el servidor.');
-        return new NextResponse('Internal Server Error: Missing server configuration.', { status: 500 });
+        console.error('Error Crítico: La variable de entorno WHATSAPP_VERIFY_TOKEN no está configurada en el servidor.');
+        return new NextResponse('Error: Configuración de servidor incompleta.', { status: 500 });
     }
 
     const searchParams = req.nextUrl.searchParams;
@@ -50,10 +50,10 @@ export async function GET(req: NextRequest) {
     const challenge = searchParams.get('hub.challenge');
 
     if (mode === 'subscribe' && token === webhookVerifyToken) {
-        console.log('Webhook verificado exitosamente!');
+        console.log('¡Webhook verificado exitosamente!');
         return new NextResponse(challenge, { status: 200 });
     } else {
-        console.error('Fallo en la verificación del webhook. El token no coincide.');
+        console.error('Fallo en la verificación del webhook. El token no coincide o el modo no es "subscribe".');
         return new NextResponse('Forbidden', { status: 403 });
     }
 }
@@ -62,28 +62,23 @@ export async function GET(req: NextRequest) {
 export async function POST(req: NextRequest) {
     try {
         const body = await req.json() as WhatsAppMessageRequest;
-
-        // Extraer la información relevante del payload
         const message = body.entry?.[0]?.changes?.[0]?.value?.messages?.[0];
         
         if (message?.type === 'text') {
             const from = message.from;
             const msgBody = message.text.body;
-            const lawyerName = "Equipo Legal"; // Puedes hacerlo dinámico si es necesario
+            const lawyerName = "Equipo Legal"; 
 
             console.log(`Mensaje recibido de ${from}: ${msgBody}`);
 
-            // TODO: Recuperar historial de conversación de la base de datos
-            const conversationHistory: any[] = [];
+            const conversationHistory: any[] = []; // TODO: Implementar historial
 
-            // Llamar al flujo de IA
             const aiResponse = await clientIntakeAutomation({
                 lawyerName: lawyerName,
                 message: msgBody,
                 conversationHistory,
             });
 
-            // Enviar la respuesta de vuelta a WhatsApp
             await sendWhatsAppMessage(from, aiResponse.response);
 
             console.log(`Respuesta de IA enviada a ${from}: ${aiResponse.response}`);
@@ -91,7 +86,7 @@ export async function POST(req: NextRequest) {
 
         return new NextResponse('OK', { status: 200 });
     } catch (error) {
-        console.error('Error procesando el webhook:', error);
+        console.error('Error procesando el webhook POST:', error);
         return new NextResponse('Internal Server Error', { status: 500 });
     }
 }
@@ -99,12 +94,14 @@ export async function POST(req: NextRequest) {
 async function sendWhatsAppMessage(to: string, text: string) {
     const phoneNumberId = process.env.WHATSAPP_PHONE_NUMBER_ID;
     const accessToken = process.env.WHATSAPP_ACCESS_TOKEN;
-    const url = `https://graph.facebook.com/v18.0/${phoneNumberId}/messages`;
-
+    
     if (!phoneNumberId || !accessToken) {
-        console.error("Error: Las variables de entorno de WhatsApp (PHONE_NUMBER_ID o ACCESS_TOKEN) no están configuradas.");
+        console.error("Error Crítico: Las variables de entorno de WhatsApp (PHONE_NUMBER_ID o ACCESS_TOKEN) no están configuradas.");
+        // No devolvemos un error al cliente de WhatsApp, pero registramos el fallo.
         return;
     }
+
+    const url = `https://graph.facebook.com/v18.0/${phoneNumberId}/messages`;
 
     const payload = {
         messaging_product: 'whatsapp',
@@ -124,11 +121,10 @@ async function sendWhatsAppMessage(to: string, text: string) {
 
         if (!response.ok) {
             const errorData = await response.json();
-            throw new Error(`Error al enviar mensaje de WhatsApp: ${JSON.stringify(errorData)}`);
+            throw new Error(`Error al enviar mensaje de WhatsApp: ${response.status} ${JSON.stringify(errorData)}`);
         }
 
         console.log('Mensaje de WhatsApp enviado exitosamente.');
-        return await response.json();
     } catch (error) {
         console.error('Error en sendWhatsAppMessage:', error);
     }
