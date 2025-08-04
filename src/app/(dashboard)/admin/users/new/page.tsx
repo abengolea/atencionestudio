@@ -77,10 +77,12 @@ export default function NewUserPage() {
       const userCredential = await createUserWithEmailAndPassword(auth, data.email, data.password);
       const user = userCredential.user;
 
+      const fullPhoneNumber = data.phone ? `+549${data.phone}` : '';
+
       await setDoc(doc(db, 'users', user.uid), {
         name: data.name,
         email: data.email,
-        phone: data.phone,
+        phone: fullPhoneNumber,
         role: data.role,
         status: data.status,
       });
@@ -159,7 +161,12 @@ export default function NewUserPage() {
                     <FormItem>
                         <FormLabel>Teléfono (WhatsApp)</FormLabel>
                         <FormControl>
-                        <Input placeholder="Ej. +5491112345678" {...field} />
+                          <div className="flex items-center gap-2">
+                            <div className="flex h-10 w-auto items-center justify-center rounded-md border border-input bg-background px-3 py-2 text-sm">
+                              +549
+                            </div>
+                            <Input placeholder="1112345678" {...field} />
+                          </div>
                         </FormControl>
                         <FormMessage />
                     </FormItem>
