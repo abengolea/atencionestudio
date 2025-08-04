@@ -1,7 +1,9 @@
 
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
+import { collection, getDocs } from 'firebase/firestore';
+import { db } from '@/lib/firebase';
 import {
   Card,
   CardContent,
@@ -34,14 +36,14 @@ import { ScrollArea } from '@/components/ui/scroll-area';
 import { Avatar, AvatarFallback } from '@/components/ui/avatar';
 import { Label } from '@/components/ui/label';
 
+type User = {
+  id: string;
+  name: string;
+  email: string;
+  role: string;
+  status: string;
+};
 
-const mockUsers = [
-  { id: 'USR001', name: 'Juan Pérez', email: 'juan.perez@bufete.com', role: 'Abogado', status: 'activo' },
-  { id: 'USR002', name: 'Ana Gómez', email: 'ana.gomez@ejemplo.com', role: 'Admin', status: 'activo' },
-  { id: 'USR003', name: 'Pedro Ramírez', email: 'pedro.ramirez@bufete.com', role: 'Asistente Legal', status: 'inactivo' },
-  { id: 'USR004', name: 'Luisa Fernández', email: 'luisa.f@ejemplo.com', role: 'Cliente', status: 'activo' },
-  { id: 'USR005', name: 'Carlos Torres', email: 'carlos.t@ejemplo.com', role: 'Cliente', status: 'bloqueado' },
-];
 
 const systemStatus = [
     { name: 'Servicio de API', status: 'Operacional', icon: <Cpu className="h-5 w-5 text-green-500" /> },
@@ -211,6 +213,70 @@ function AITestChat() {
     );
 }
 
+function UserManagement() {
+  const [users, setUsers] = useState<User[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
+
+  useEffect(() => {
+    const fetchUsers = async () => {
+      setIsLoading(true);
+      try {
+        const usersCollection = collection(db, 'users');
+        const userSnapshot = await getDocs(usersCollection);
+        const userList = userSnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as User));
+        setUsers(userList);
+      } catch (error) {
+        console.error("Error fetching users:", error);
+        // Aquí podrías mostrar un toast de error al usuario
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    fetchUsers();
+  }, []);
+
+  return (
+    <Card>
+      <CardHeader>
+        <CardTitle>Gestión de Usuarios</CardTitle>
+        <CardDescription>Ver y gestionar todos los usuarios en el sistema.</CardDescription>
+      </CardHeader>
+      <CardContent>
+        {isLoading ? (
+          <p>Cargando usuarios...</p>
+        ) : (
+          <Table>
+            <TableHeader>
+              <TableRow>
+                <TableHead>Nombre</TableHead>
+                <TableHead>Email</TableHead>
+                <TableHead>Rol</TableHead>
+                <TableHead>Estado</TableHead>
+                <TableHead className="text-right">Acciones</TableHead>
+              </TableRow>
+            </TableHeader>
+            <TableBody>
+              {users.map((user) => (
+                <TableRow key={user.id}>
+                  <TableCell className="font-medium">{user.name}</TableCell>
+                  <TableCell>{user.email}</TableCell>
+                  <TableCell><Badge variant="outline">{user.role}</Badge></TableCell>
+                  <TableCell>{getStatusBadge(user.status)}</TableCell>
+                  <TableCell className="text-right">
+                    <Button variant="ghost" size="icon"><Edit className="h-4 w-4" /></Button>
+                    <Button variant="ghost" size="icon" className="text-red-500 hover:text-red-600"><Trash2 className="h-4 w-4" /></Button>
+                  </TableCell>
+                </TableRow>
+              ))}
+            </TableBody>
+          </Table>
+        )}
+      </CardContent>
+    </Card>
+  );
+}
+
 
 export default function AdminPage() {
   return (
@@ -229,39 +295,7 @@ export default function AdminPage() {
         </TabsList>
 
         <TabsContent value="users">
-          <Card>
-            <CardHeader>
-              <CardTitle>Gestión de Usuarios</CardTitle>
-              <CardDescription>Ver y gestionar todos los usuarios en el sistema.</CardDescription>
-            </CardHeader>
-            <CardContent>
-              <Table>
-                <TableHeader>
-                  <TableRow>
-                    <TableHead>Nombre</TableHead>
-                    <TableHead>Email</TableHead>
-                    <TableHead>Rol</TableHead>
-                    <TableHead>Estado</TableHead>
-                    <TableHead className="text-right">Acciones</TableHead>
-                  </TableRow>
-                </TableHeader>
-                <TableBody>
-                  {mockUsers.map((user) => (
-                    <TableRow key={user.id}>
-                      <TableCell className="font-medium">{user.name}</TableCell>
-                      <TableCell>{user.email}</TableCell>
-                      <TableCell><Badge variant="outline">{user.role}</Badge></TableCell>
-                      <TableCell>{getStatusBadge(user.status)}</TableCell>
-                      <TableCell className="text-right">
-                        <Button variant="ghost" size="icon"><Edit className="h-4 w-4" /></Button>
-                        <Button variant="ghost" size="icon" className="text-red-500 hover:text-red-600"><Trash2 className="h-4 w-4" /></Button>
-                      </TableCell>
-                    </TableRow>
-                  ))}
-                </TableBody>
-              </Table>
-            </CardContent>
-          </Card>
+          <UserManagement />
         </TabsContent>
 
         <TabsContent value="system">
@@ -305,5 +339,3 @@ export default function AdminPage() {
     </div>
   );
 }
-
-    
