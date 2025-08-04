@@ -43,6 +43,7 @@ const userSchema = z.object({
   name: z.string().min(1, 'El nombre es requerido'),
   email: z.string().email('El email no es válido'),
   password: z.string().min(6, 'La contraseña debe tener al menos 6 caracteres'),
+  phone: z.string().optional(),
   role: z.enum(['abogado', 'admin'], {
     required_error: 'El rol es requerido',
   }),
@@ -64,6 +65,7 @@ export default function NewUserPage() {
       name: '',
       email: '',
       password: '',
+      phone: '',
       role: 'abogado',
       status: 'activo',
     },
@@ -78,6 +80,7 @@ export default function NewUserPage() {
       await setDoc(doc(db, 'users', user.uid), {
         name: data.name,
         email: data.email,
+        phone: data.phone,
         role: data.role,
         status: data.status,
       });
@@ -135,19 +138,34 @@ export default function NewUserPage() {
                   </FormItem>
                 )}
               />
-              <FormField
-                control={form.control}
-                name="email"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Email</FormLabel>
-                    <FormControl>
-                      <Input type="email" placeholder="Ej. juan.perez@bufete.com" {...field} />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
+               <div className="grid md:grid-cols-2 gap-6">
+                 <FormField
+                    control={form.control}
+                    name="email"
+                    render={({ field }) => (
+                    <FormItem>
+                        <FormLabel>Email</FormLabel>
+                        <FormControl>
+                        <Input type="email" placeholder="Ej. juan.perez@bufete.com" {...field} />
+                        </FormControl>
+                        <FormMessage />
+                    </FormItem>
+                    )}
+                />
+                 <FormField
+                    control={form.control}
+                    name="phone"
+                    render={({ field }) => (
+                    <FormItem>
+                        <FormLabel>Teléfono (WhatsApp)</FormLabel>
+                        <FormControl>
+                        <Input placeholder="Ej. +5491112345678" {...field} />
+                        </FormControl>
+                        <FormMessage />
+                    </FormItem>
+                    )}
+                />
+              </div>
               <FormField
                 control={form.control}
                 name="password"
@@ -155,7 +173,7 @@ export default function NewUserPage() {
                   <FormItem>
                     <FormLabel>Contraseña</FormLabel>
                     <FormControl>
-                      <Input type="password" {...field} />
+                      <Input type="password" />
                     </FormControl>
                     <FormMessage />
                   </FormItem>

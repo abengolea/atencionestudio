@@ -43,6 +43,7 @@ type User = {
   email: string;
   role: string;
   status: string;
+  phone?: string;
 };
 
 
@@ -257,6 +258,7 @@ function UserManagement() {
               <TableRow>
                 <TableHead>Nombre</TableHead>
                 <TableHead>Email</TableHead>
+                <TableHead>Teléfono</TableHead>
                 <TableHead>Rol</TableHead>
                 <TableHead>Estado</TableHead>
                 <TableHead className="text-right">Acciones</TableHead>
@@ -267,6 +269,7 @@ function UserManagement() {
                 <TableRow key={user.id}>
                   <TableCell className="font-medium">{user.name}</TableCell>
                   <TableCell>{user.email}</TableCell>
+                  <TableCell>{user.phone || '-'}</TableCell>
                   <TableCell><Badge variant="outline">{user.role}</Badge></TableCell>
                   <TableCell>{getStatusBadge(user.status)}</TableCell>
                   <TableCell className="text-right">
