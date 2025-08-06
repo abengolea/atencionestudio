@@ -8,7 +8,9 @@ import { Badge } from '@/components/ui/badge';
 import { CaseStatusBadge } from '@/components/CaseStatusBadge';
 import { WhatsAppChat } from '@/components/WhatsAppChat';
 import { LegalDraftGenerator } from '@/components/LegalDraftGenerator';
-import { FileText, Calendar, DollarSign, User, Phone, Mail, MapPin, Check, X, ArrowLeft } from 'lucide-react';
+import { AiCaseAnalysis } from '@/components/AiCaseAnalysis';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { FileText, Calendar, DollarSign, User, Phone, Mail, MapPin, Check, X, ArrowLeft, Wand2, BrainCircuit } from 'lucide-react';
 import Link from 'next/link';
 
 export default function CaseDetailPage({ params }: { params: { id: string } }) {
@@ -39,7 +41,18 @@ export default function CaseDetailPage({ params }: { params: { id: string } }) {
 
       <div className="grid md:grid-cols-3 gap-8">
         <div className="md:col-span-2 space-y-8">
-            <LegalDraftGenerator caseData={caseData} />
+            <Tabs defaultValue="analysis">
+              <TabsList className="grid w-full grid-cols-2">
+                <TabsTrigger value="analysis"><BrainCircuit className="mr-2"/> Análisis de IA</TabsTrigger>
+                <TabsTrigger value="drafting"><Wand2 className="mr-2"/> Asistente de Redacción</TabsTrigger>
+              </TabsList>
+              <TabsContent value="analysis" className="mt-4">
+                 <AiCaseAnalysis caseData={caseData} />
+              </TabsContent>
+              <TabsContent value="drafting" className="mt-4">
+                <LegalDraftGenerator caseData={caseData} />
+              </TabsContent>
+            </Tabs>
             <WhatsAppChat caseData={caseData} />
         </div>
 

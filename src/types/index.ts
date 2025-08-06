@@ -1,3 +1,13 @@
+export type CaseAnalysis = {
+  summary: string;
+  strengths: string[];
+  weaknesses: string[];
+  recommendations: string;
+  successProbability: number;
+  estimatedDuration: string;
+  complexity: "simple" | "media" | "compleja";
+};
+
 export type Case = {
   id: string;
   lawyerId: string;
@@ -15,15 +25,7 @@ export type Case = {
     documents: { name: string; url: string }[];
     timeline: string;
   };
-  aiAnalysis: {
-    summary: string;
-    strengths: string[];
-    weaknesses: string[];
-    recommendations: string;
-    successProbability: number;
-    estimatedDuration: string;
-    complexity: "simple" | "media" | "compleja";
-  };
+  aiAnalysis: CaseAnalysis;
   conversation: {
     messages: {
       sender: "client" | "ai";
