@@ -40,8 +40,9 @@ export async function GET(req: NextRequest) {
     const webhookVerifyToken = process.env.WHATSAPP_VERIFY_TOKEN;
 
     if (!webhookVerifyToken) {
-        console.error('Error Crítico: La variable de entorno WHATSAPP_VERIFY_TOKEN no está configurada en el servidor.');
-        return new NextResponse('Error: Configuración de servidor incompleta.', { status: 500 });
+        const errorMessage = 'Error Crítico: La variable de entorno WHATSAPP_VERIFY_TOKEN no está configurada en el servidor.';
+        console.error(errorMessage);
+        return new NextResponse(errorMessage, { status: 500 });
     }
 
     const searchParams = req.nextUrl.searchParams;
@@ -96,7 +97,8 @@ async function sendWhatsAppMessage(to: string, text: string) {
     const accessToken = process.env.WHATSAPP_ACCESS_TOKEN;
     
     if (!phoneNumberId || !accessToken) {
-        console.error("Error Crítico: Las variables de entorno de WhatsApp (PHONE_NUMBER_ID o ACCESS_TOKEN) no están configuradas.");
+        const errorMessage = "Error Crítico: Las variables de entorno de WhatsApp (PHONE_NUMBER_ID o ACCESS_TOKEN) no están configuradas.";
+        console.error(errorMessage);
         // No devolvemos un error al cliente de WhatsApp, pero registramos el fallo.
         return;
     }
