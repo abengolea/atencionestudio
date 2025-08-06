@@ -7,7 +7,7 @@ import { Textarea } from '@/components/ui/textarea';
 import { Badge } from '@/components/ui/badge';
 import { CaseStatusBadge } from '@/components/CaseStatusBadge';
 import { WhatsAppChat } from '@/components/WhatsAppChat';
-import { CaseAnalysisCard } from '@/components/CaseAnalysisCard';
+import { LegalDraftGenerator } from '@/components/LegalDraftGenerator';
 import { FileText, Calendar, DollarSign, User, Phone, Mail, MapPin, Check, X, ArrowLeft } from 'lucide-react';
 import Link from 'next/link';
 
@@ -39,7 +39,7 @@ export default function CaseDetailPage({ params }: { params: { id: string } }) {
 
       <div className="grid md:grid-cols-3 gap-8">
         <div className="md:col-span-2 space-y-8">
-            <CaseAnalysisCard analysis={aiAnalysis} />
+            <LegalDraftGenerator caseData={caseData} />
             <WhatsAppChat caseData={caseData} />
         </div>
 
