@@ -2,13 +2,19 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
-import { Bell, FileText, MessageSquare, Search, Calendar, AlertCircle, CheckCircle, Clock, Gavel, Users, Phone, Mail, Filter, Download, Plus, Settings, Eye, Zap } from 'lucide-react';
+import { Bell, FileText, MessageSquare, Search, Calendar, AlertCircle, CheckCircle, Clock, Gavel, Users, Phone, Mail, Filter, Download, Plus, Settings, Eye, Zap, Link as LinkIcon, ExternalLink, Cog } from 'lucide-react';
+import { Button } from '@/components/ui/button';
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter } from '@/components/ui/dialog';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
 
 const SecretariaJuridicaAI = () => {
   const [activeTab, setActiveTab] = useState('dashboard');
   const [notifications, setNotifications] = useState<any[]>([]);
   const [casos, setCasos] = useState<any[]>([]);
   const [borradores, setBorradores] = useState<any[]>([]);
+  const [isScbaModalOpen, setIsScbaModalOpen] = useState(false);
+
 
   // Simulación de datos en tiempo real
   useEffect(() => {
@@ -148,26 +154,40 @@ const SecretariaJuridicaAI = () => {
             Conexiones Activas
           </h3>
           <div className="space-y-3">
-            <div className="flex items-center justify-between p-3 bg-green-50 rounded-lg">
-              <span className="font-medium">Mesa de Entrada Virtual CABA</span>
+            <div className="flex items-center justify-between p-3 bg-gray-50 rounded-lg border">
+                <div>
+                    <span className="font-medium">MEV - SCBA</span>
+                    <p className="text-xs text-gray-500">Mesa de Entradas Virtual (Buenos Aires)</p>
+                </div>
+                <div className="flex items-center gap-2">
+                    <div className="flex items-center text-red-600">
+                        <AlertCircle size={16} className="mr-1" />
+                        Desconectado
+                    </div>
+                    <Button variant="outline" size="sm" onClick={() => setIsScbaModalOpen(true)}>
+                        <Cog size={14} className="mr-1" /> Gestionar
+                    </Button>
+                </div>
+            </div>
+            <div className="flex items-center justify-between p-3 bg-green-50 rounded-lg border">
+               <div>
+                    <span className="font-medium">PJN</span>
+                    <p className="text-xs text-gray-500">Poder Judicial de la Nación</p>
+                </div>
               <div className="flex items-center text-green-600">
                 <CheckCircle size={16} className="mr-1" />
                 Conectado
               </div>
             </div>
-            <div className="flex items-center justify-between p-3 bg-green-50 rounded-lg">
-              <span className="font-medium">PJE Buenos Aires</span>
-              <div className="flex items-center text-green-600">
-                <CheckCircle size={16} className="mr-1" />
-                Conectado
-              </div>
-            </div>
-            <div className="flex items-center justify-between p-3 bg-yellow-50 rounded-lg">
-              <span className="font-medium">SMS Gateway</span>
-              <div className="flex items-center text-yellow-600">
-                <Clock size={16} className="mr-1" />
-                Sincronizando
-              </div>
+             <div className="flex items-center justify-between p-3 bg-gray-50 rounded-lg border">
+               <div>
+                    <span className="font-medium">SMS Gateway</span>
+                    <p className="text-xs text-gray-500">Notificaciones a Clientes</p>
+                </div>
+                <div className="flex items-center text-yellow-600">
+                    <Clock size={16} className="mr-1" />
+                    Sincronizando
+                </div>
             </div>
           </div>
         </div>
@@ -197,6 +217,33 @@ const SecretariaJuridicaAI = () => {
           </div>
         </div>
       </div>
+       <Dialog open={isScbaModalOpen} onOpenChange={setIsScbaModalOpen}>
+        <DialogContent>
+            <DialogHeader>
+                <DialogTitle>Configurar Conexión con MEV - SCBA</DialogTitle>
+                <DialogDescription>
+                    Introduce tus credenciales para conectar de forma segura con la Mesa de Entradas Virtual de la SCBA.
+                </DialogDescription>
+            </DialogHeader>
+            <div className="space-y-4 py-4">
+                <div className="space-y-2">
+                    <Label htmlFor="scba-user">Usuario</Label>
+                    <Input id="scba-user" placeholder="Tu usuario de la MEV" disabled />
+                </div>
+                <div className="space-y-2">
+                    <Label htmlFor="scba-password">Contraseña</Label>
+                    <Input id="scba-password" type="password" placeholder="Tu contraseña de la MEV" disabled/>
+                </div>
+                 <p className="text-xs text-muted-foreground">
+                    La funcionalidad de conexión directa está en desarrollo. Las credenciales no se pueden guardar en este momento.
+                </p>
+            </div>
+            <DialogFooter>
+                <Button variant="outline" onClick={() => setIsScbaModalOpen(false)}>Cancelar</Button>
+                <Button disabled>Guardar y Conectar</Button>
+            </DialogFooter>
+        </DialogContent>
+       </Dialog>
     </div>
   );
 
