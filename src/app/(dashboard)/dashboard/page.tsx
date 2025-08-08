@@ -7,13 +7,13 @@ import { Button } from '@/components/ui/button';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter } from '@/components/ui/dialog';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
+import Link from 'next/link';
 
 const SecretariaJuridicaAI = () => {
   const [activeTab, setActiveTab] = useState('dashboard');
   const [notifications, setNotifications] = useState<any[]>([]);
   const [casos, setCasos] = useState<any[]>([]);
   const [borradores, setBorradores] = useState<any[]>([]);
-  const [isScbaModalOpen, setIsScbaModalOpen] = useState(false);
 
 
   // Simulación de datos en tiempo real
@@ -164,8 +164,10 @@ const SecretariaJuridicaAI = () => {
                         <AlertCircle size={16} className="mr-1" />
                         Desconectado
                     </div>
-                    <Button variant="outline" size="sm" onClick={() => setIsScbaModalOpen(true)}>
+                    <Button variant="outline" size="sm" asChild>
+                      <Link href="/settings?tab=integrations">
                         <Cog size={14} className="mr-1" /> Gestionar
+                      </Link>
                     </Button>
                 </div>
             </div>
@@ -217,33 +219,6 @@ const SecretariaJuridicaAI = () => {
           </div>
         </div>
       </div>
-       <Dialog open={isScbaModalOpen} onOpenChange={setIsScbaModalOpen}>
-        <DialogContent>
-            <DialogHeader>
-                <DialogTitle>Configurar Conexión con MEV - SCBA</DialogTitle>
-                <DialogDescription>
-                    Introduce tus credenciales para conectar de forma segura con la Mesa de Entradas Virtual de la SCBA.
-                </DialogDescription>
-            </DialogHeader>
-            <div className="space-y-4 py-4">
-                <div className="space-y-2">
-                    <Label htmlFor="scba-user">Usuario</Label>
-                    <Input id="scba-user" placeholder="Tu usuario de la MEV" disabled />
-                </div>
-                <div className="space-y-2">
-                    <Label htmlFor="scba-password">Contraseña</Label>
-                    <Input id="scba-password" type="password" placeholder="Tu contraseña de la MEV" disabled/>
-                </div>
-                 <p className="text-xs text-muted-foreground">
-                    La funcionalidad de conexión directa está en desarrollo. Las credenciales no se pueden guardar en este momento.
-                </p>
-            </div>
-            <DialogFooter>
-                <Button variant="outline" onClick={() => setIsScbaModalOpen(false)}>Cancelar</Button>
-                <Button disabled>Guardar y Conectar</Button>
-            </DialogFooter>
-        </DialogContent>
-       </Dialog>
     </div>
   );
 

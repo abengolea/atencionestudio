@@ -2,6 +2,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
+import { useSearchParams } from 'next/navigation';
 import { Button } from '@/components/ui/button';
 import {
   Card,
@@ -23,9 +24,13 @@ import {
     TabsList,
     TabsTrigger,
   } from '@/components/ui/tabs';
+import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
+import { Terminal } from 'lucide-react';
 
 export default function SettingsPage() {
   const [webhookUrl, setWebhookUrl] = useState('');
+  const searchParams = useSearchParams();
+  const defaultTab = searchParams.get('tab') || 'profile';
 
   useEffect(() => {
     // Asegura que window.location solo se use en el cliente
@@ -39,12 +44,13 @@ export default function SettingsPage() {
     <div className="flex flex-col gap-8">
       <div>
         <h1 className="text-3xl font-bold font-headline">Configuración</h1>
-        <p className="text-muted-foreground">Gestiona tu cuenta y la configuración de filtros de casos.</p>
+        <p className="text-muted-foreground">Gestiona tu cuenta, integraciones y filtros de casos.</p>
       </div>
-      <Tabs defaultValue="profile" className="w-full">
-        <TabsList className="grid w-full grid-cols-3">
+      <Tabs defaultValue={defaultTab} className="w-full">
+        <TabsList className="grid w-full grid-cols-4">
           <TabsTrigger value="profile">Perfil</TabsTrigger>
           <TabsTrigger value="whatsapp">WhatsApp</TabsTrigger>
+          <TabsTrigger value="integrations">Integraciones Judiciales</TabsTrigger>
           <TabsTrigger value="filters">Filtros de Casos</TabsTrigger>
         </TabsList>
 
@@ -122,6 +128,62 @@ export default function SettingsPage() {
             </CardFooter>
           </Card>
         </TabsContent>
+
+        <TabsContent value="integrations">
+            <Card>
+                <CardHeader>
+                    <CardTitle>Integraciones Judiciales</CardTitle>
+                    <CardDescription>Conecta el sistema a las mesas de entradas virtuales para el monitoreo automático de expedientes.</CardDescription>
+                </CardHeader>
+                <CardContent className="space-y-8">
+                    <Alert variant="destructive">
+                      <Terminal className="h-4 w-4" />
+                      <AlertTitle>Función en Desarrollo</AlertTitle>
+                      <AlertDescription>
+                        Esta sección es una demostración. La conexión real y el almacenamiento seguro de credenciales requieren un desarrollo de backend adicional. No guarde contraseñas reales aquí.
+                      </AlertDescription>
+                    </Alert>
+
+                    {/* MEV SCBA */}
+                    <div className="space-y-4 p-4 border rounded-lg">
+                        <h3 className="font-semibold">MEV - SCBA (Prov. de Buenos Aires)</h3>
+                        <div className="space-y-2">
+                            <Label htmlFor="mev-user">Usuario</Label>
+                            <Input id="mev-user" placeholder="Tu usuario de la MEV" />
+                        </div>
+                        <div className="space-y-2">
+                            <Label htmlFor="mev-password">Contraseña</Label>
+                            <Input id="mev-password" type="password" placeholder="Tu contraseña de la MEV" />
+                        </div>
+                         <div className="flex items-center gap-2">
+                           <Button disabled>Guardar Credenciales</Button>
+                           <Button variant="outline" disabled>Probar Conexión</Button>
+                         </div>
+                    </div>
+
+                    {/* PJN */}
+                    <div className="space-y-4 p-4 border rounded-lg">
+                        <h3 className="font-semibold">PJN (Poder Judicial de la Nación)</h3>
+                         <div className="space-y-2">
+                            <Label htmlFor="pjn-user">CUIT/CUIL</Label>
+                            <Input id="pjn-user" placeholder="Tu CUIT/CUIL" />
+                        </div>
+                        <div className="space-y-2">
+                            <Label htmlFor="pjn-password">Contraseña</Label>
+                            <Input id="pjn-password" type="password" placeholder="Tu contraseña del PJN" />
+                        </div>
+                         <div className="flex items-center gap-2">
+                           <Button disabled>Guardar Credenciales</Button>
+                           <Button variant="outline" disabled>Probar Conexión</Button>
+                         </div>
+                    </div>
+                </CardContent>
+                <CardFooter>
+                  <p className="text-xs text-muted-foreground">Se añadirán más jurisdicciones en el futuro.</p>
+                </CardFooter>
+            </Card>
+        </TabsContent>
+
 
         <TabsContent value="filters">
           <Card>
