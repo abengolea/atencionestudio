@@ -1,3 +1,4 @@
+
 'use client';
 
 import { useRouter } from 'next/navigation';
@@ -16,6 +17,11 @@ export function CaseTableRow({ caseItem }: CaseTableRowProps) {
   const handleRowClick = () => {
     router.push(`/cases/${caseItem.id}`);
   };
+
+  const formattedDate = caseItem.createdAt instanceof Date 
+    ? caseItem.createdAt.toLocaleDateString('es-ES', { dateStyle: 'short' })
+    : new Date(caseItem.createdAt.seconds * 1000).toLocaleDateString('es-ES', { dateStyle: 'short' });
+
 
   return (
     <TableRow key={caseItem.id} className="cursor-pointer" onClick={handleRowClick}>
@@ -36,7 +42,7 @@ export function CaseTableRow({ caseItem }: CaseTableRowProps) {
       <TableCell>
         <CaseStatusBadge status={caseItem.lawyerDecision.status} />
       </TableCell>
-      <TableCell>{new Date(caseItem.createdAt).toLocaleDateString('es-ES', { dateStyle: 'short' })}</TableCell>
+      <TableCell>{formattedDate}</TableCell>
       <TableCell className="text-right">
         {new Intl.NumberFormat('es-ES', {
           style: 'currency',
@@ -54,6 +60,10 @@ export function RecentCaseTableRow({ caseItem }: CaseTableRowProps) {
     const handleRowClick = () => {
       router.push(`/cases/${caseItem.id}`);
     };
+
+    const formattedDate = caseItem.createdAt instanceof Date 
+    ? caseItem.createdAt.toLocaleDateString('es-ES', { dateStyle: 'short' })
+    : new Date(caseItem.createdAt.seconds * 1000).toLocaleDateString('es-ES', { dateStyle: 'short' });
   
     return (
         <TableRow key={caseItem.id} className="cursor-pointer" onClick={handleRowClick}>
@@ -74,7 +84,7 @@ export function RecentCaseTableRow({ caseItem }: CaseTableRowProps) {
             <TableCell>
             <CaseStatusBadge status={caseItem.lawyerDecision.status} />
             </TableCell>
-            <TableCell>{new Date(caseItem.createdAt).toLocaleDateString('es-ES', { dateStyle: 'short' })}</TableCell>
+            <TableCell>{formattedDate}</TableCell>
       </TableRow>
     );
   }

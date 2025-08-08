@@ -1,5 +1,12 @@
-import { notFound } from 'next/navigation';
-import { mockCases } from '@/lib/mock-data';
+
+'use client';
+
+import { useState, useEffect } from 'react';
+import { notFound, useRouter } from 'next/navigation';
+import { doc, onSnapshot } from 'firebase/firestore';
+import { db } from '@/lib/firebase';
+import type { Case } from '@/types';
+
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Separator } from '@/components/ui/separator';
@@ -10,17 +17,67 @@ import { WhatsAppChat } from '@/components/WhatsAppChat';
 import { LegalDraftGenerator } from '@/components/LegalDraftGenerator';
 import { AiCaseAnalysis } from '@/components/AiCaseAnalysis';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { FileText, Calendar, DollarSign, User, Phone, Mail, MapPin, Check, X, ArrowLeft, Wand2, BrainCircuit } from 'lucide-react';
+import { FileText, Calendar, DollarSign, User, Phone, Mail, MapPin, Check, X, ArrowLeft, Wand2, BrainCircuit, Loader2 } from 'lucide-react';
 import Link from 'next/link';
 
 export default function CaseDetailPage({ params }: { params: { id: string } }) {
-  const caseData = mockCases.find(c => c.id === params.id);
+  const [caseData, setCaseData] = useState<Case | null>(null);
+  const [isLoading, setIsLoading] = useState(true);
+  const router = useRouter();
 
-  if (!caseData) {
-    notFound();
+  useEffect(() => {
+    if (!params.id) return;
+    setIsLoading(true);
+    const caseDocRef = doc(db, 'cases', params.id);
+    const unsubscribe = onSnapshot(caseDocRef, (docSnap) => {
+      if (docSnap.exists()) {
+        const data = docSnap.data();
+        // Convert Firestore Timestamps to JS Dates
+        const caseDetailsWithDates: Case = {
+          id: docSnap.id,
+          ...data,
+          createdAt: data.createdAt.toDate(),
+          updatedAt: data.updatedAt.toDate(),
+          lawyerDecision: {
+            ...data.lawyerDecision,
+            timestamp: data.lawyerDecision.timestamp.toDate(),
+          },
+          conversation: {
+            ...data.conversation,
+            messages: data.conversation.messages.map((msg: any) => ({
+              ...msg,
+              timestamp: msg.timestamp.toDate(),
+            })),
+          },
+        } as Case;
+        setCaseData(caseDetailsWithDates);
+      } else {
+        notFound();
+      }
+      setIsLoading(false);
+    }, (error) => {
+      console.error("Error fetching case:", error);
+      setIsLoading(false);
+      // Optionally handle error state
+    });
+
+    return () => unsubscribe();
+  }, [params.id]);
+
+  if (isLoading) {
+    return (
+      <div className="flex justify-center items-center h-full">
+        <Loader2 className="h-8 w-8 animate-spin" />
+        <p className="ml-2">Cargando caso...</p>
+      </div>
+    );
   }
 
-  const { clientInfo, caseDetails, aiAnalysis, lawyerDecision } = caseData;
+  if (!caseData) {
+    return notFound();
+  }
+
+  const { clientInfo, caseDetails, lawyerDecision } = caseData;
 
   return (
     <div className="flex flex-col gap-8">
@@ -33,7 +90,7 @@ export default function CaseDetailPage({ params }: { params: { id: string } }) {
           <div>
             <h1 className="text-3xl font-bold font-headline">Detalles del Caso: {caseData.id}</h1>
             <p className="text-muted-foreground">
-              Recibido el {new Date(caseData.createdAt).toLocaleDateString('es-ES', { dateStyle: 'long' })}
+              Recibido el {caseData.createdAt.toLocaleDateString('es-ES', { dateStyle: 'long' })}
             </p>
           </div>
           <CaseStatusBadge status={lawyerDecision.status} />

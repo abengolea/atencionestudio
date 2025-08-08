@@ -1,9 +1,13 @@
+
+'use client';
+
+import { useState, useEffect } from 'react';
+import { collection, onSnapshot, query, where, Query } from 'firebase/firestore';
+import { db } from '@/lib/firebase';
+import type { Case } from '@/types';
 import {
   Card,
   CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
 } from '@/components/ui/card';
 import {
   Table,
@@ -19,17 +23,64 @@ import {
   TabsList,
   TabsTrigger,
 } from '@/components/ui/tabs';
-import { Badge } from '@/components/ui/badge';
 import { CaseTableRow } from '@/components/CaseTableRow';
-import { mockCases } from '@/lib/mock-data';
 import { Input } from '@/components/ui/input';
-import { Search } from 'lucide-react';
+import { Loader2, Search } from 'lucide-react';
 
 export default function CasesPage() {
-  const renderCaseTable = (status: 'pendiente' | 'aceptado' | 'rechazado' | 'todos') => {
-    const filteredCases = status === 'todos' 
-      ? mockCases 
-      : mockCases.filter(c => c.lawyerDecision.status === status);
+  const [cases, setCases] = useState<Case[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
+  const [activeTab, setActiveTab] = useState<'todos' | 'pendiente' | 'aceptado' | 'rechazado'>('todos');
+
+  useEffect(() => {
+    setIsLoading(true);
+    let q: Query;
+    const casesCollection = collection(db, 'cases');
+
+    if (activeTab === 'todos') {
+      q = query(casesCollection);
+    } else {
+      q = query(casesCollection, where('lawyerDecision.status', '==', activeTab));
+    }
+
+    const unsubscribe = onSnapshot(q, (snapshot) => {
+      const caseList = snapshot.docs.map(doc => {
+         const data = doc.data();
+         return {
+            id: doc.id,
+            ...data,
+            // Convert Firestore Timestamps to JS Dates
+            createdAt: data.createdAt.toDate(),
+            updatedAt: data.updatedAt.toDate(),
+         } as Case
+      });
+      setCases(caseList);
+      setIsLoading(false);
+    }, (error) => {
+      console.error("Error fetching cases: ", error);
+      setIsLoading(false);
+    });
+
+    return () => unsubscribe();
+  }, [activeTab]);
+
+  const renderCaseTable = () => {
+     if (isLoading) {
+      return (
+        <div className="flex justify-center items-center h-64">
+          <Loader2 className="h-8 w-8 animate-spin" />
+           <p className="ml-2">Cargando casos...</p>
+        </div>
+      );
+    }
+
+    if (cases.length === 0) {
+        return (
+             <div className="flex justify-center items-center h-64">
+                <p>No se encontraron casos para esta vista.</p>
+            </div>
+        )
+    }
 
     return (
       <Card>
@@ -46,7 +97,7 @@ export default function CasesPage() {
               </TableRow>
             </TableHeader>
             <TableBody>
-              {filteredCases.map((caseItem) => (
+              {cases.map((caseItem) => (
                 <CaseTableRow key={caseItem.id} caseItem={caseItem} />
               ))}
             </TableBody>
@@ -62,7 +113,11 @@ export default function CasesPage() {
         <h1 className="text-3xl font-bold font-headline">Gestionar Casos</h1>
         <p className="text-muted-foreground">Revise, acepte o rechace los casos entrantes.</p>
       </div>
-      <Tabs defaultValue="todos">
+      <Tabs 
+        defaultValue="todos" 
+        onValueChange={(value) => setActiveTab(value as any)}
+        className="w-full"
+      >
         <div className="flex items-center">
             <TabsList>
                 <TabsTrigger value="todos">Todos</TabsTrigger>
@@ -77,10 +132,9 @@ export default function CasesPage() {
                 </div>
             </div>
         </div>
-        <TabsContent value="todos">{renderCaseTable('todos')}</TabsContent>
-        <TabsContent value="pendiente">{renderCaseTable('pendiente')}</TabsContent>
-        <TabsContent value="aceptado">{renderCaseTable('aceptado')}</TabsContent>
-        <TabsContent value="rechazado">{renderCaseTable('rechazado')}</TabsContent>
+        <TabsContent value={activeTab} className="mt-4">
+           {renderCaseTable()}
+        </TabsContent>
       </Tabs>
     </div>
   );
