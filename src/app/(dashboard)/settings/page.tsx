@@ -28,9 +28,10 @@ import {
   } from '@/components/ui/tabs';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
-import { Loader2, Terminal, ShieldCheck, ShieldAlert } from 'lucide-react';
+import { Loader2, Terminal, ShieldCheck, ShieldAlert, Zap } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { updateUserCredentials, getUserCredentials } from './actions';
+import { monitorMev } from '@/ai/flows/monitor-mev-flow';
 
 const judicialCredentialsSchema = z.object({
     mevUser: z.string().optional(),
@@ -43,7 +44,8 @@ type JudicialCredentialsFormValues = z.infer<typeof judicialCredentialsSchema>;
 
 function JudicialIntegrationsForm() {
     const { toast } = useToast();
-    const [isPending, startTransition] = useTransition();
+    const [isSaving, startSaveTransition] = useTransition();
+    const [isTesting, startTestTransition] = useTransition();
     const [isLoading, setIsLoading] = useState(true);
 
     const form = useForm<JudicialCredentialsFormValues>({
@@ -66,7 +68,7 @@ function JudicialIntegrationsForm() {
     }, [form]);
 
     const onSubmit = (data: JudicialCredentialsFormValues) => {
-        startTransition(async () => {
+        startSaveTransition(async () => {
             // Filter out empty password fields so they don't overwrite existing ones
             const credentialsToSave: any = { ...data };
             if (!data.mevPassword) delete credentialsToSave.mevPassword;
@@ -86,6 +88,46 @@ function JudicialIntegrationsForm() {
                     title: 'Error',
                     description: result.message,
                 });
+            }
+        });
+    }
+
+    const onTestConnection = async () => {
+        const { mevUser, mevPassword } = form.getValues();
+        if (!mevUser || !mevPassword) {
+            toast({
+                variant: 'destructive',
+                title: 'Faltan Credenciales',
+                description: 'Por favor, ingrese un usuario y una nueva contraseña para la MEV antes de probar la conexión.',
+            });
+            return;
+        }
+
+        startTestTransition(async () => {
+            try {
+                const result = await monitorMev({
+                    username: mevUser,
+                    password: mevPassword,
+                });
+                if (result.status === 'success') {
+                    toast({
+                        title: 'Prueba Exitosa',
+                        description: result.message,
+                    });
+                } else {
+                     toast({
+                        variant: 'destructive',
+                        title: 'Prueba Fallida',
+                        description: result.message,
+                    });
+                }
+            } catch (error) {
+                 toast({
+                    variant: 'destructive',
+                    title: 'Error en la Prueba',
+                    description: 'Ocurrió un error inesperado al probar la conexión.',
+                });
+                console.error("Error testing MEV connection:", error);
             }
         });
     }
@@ -181,11 +223,14 @@ function JudicialIntegrationsForm() {
                 </CardContent>
                 <CardFooter className="flex justify-between">
                     <div className="flex items-center gap-2">
-                        <Button type="submit" disabled={isPending}>
-                            {isPending && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-                            {isPending ? 'Guardando...' : 'Guardar Credenciales'}
+                        <Button type="submit" disabled={isSaving}>
+                            {isSaving && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+                            {isSaving ? 'Guardando...' : 'Guardar Credenciales'}
                         </Button>
-                        <Button variant="outline" disabled>Probar Conexión</Button>
+                        <Button variant="outline" type="button" onClick={onTestConnection} disabled={isTesting}>
+                           {isTesting && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+                           {isTesting ? 'Probando...' : <><Zap className="mr-2"/> Probar Conexión MEV</>}
+                        </Button>
                     </div>
                   <p className="text-xs text-muted-foreground">Se añadirán más jurisdicciones en el futuro.</p>
                 </CardFooter>
