@@ -1,8 +1,7 @@
 
 'use server';
 
-import { auth } from '@/lib/firebase-admin';
-import { db } from '@/lib/firebase-admin';
+import { getAuth, getDb } from '@/lib/firebase-admin';
 import { revalidatePath } from 'next/cache';
 
 interface Credentials {
@@ -14,6 +13,7 @@ interface Credentials {
 
 export async function updateUserCredentials(credentials: Credentials) {
   try {
+    const db = getDb();
     // In a real scenario, you'd get the user ID from the session.
     // For this example, we'll assume a hardcoded user ID for the demo's scope.
     // This should be replaced with a proper auth check.
@@ -38,6 +38,7 @@ export async function updateUserCredentials(credentials: Credentials) {
 
 export async function getUserCredentials() {
     try {
+        const db = getDb();
         const currentUserId = 'X8A9sT2f3R4eC5V6bN7mI8lO9p0'; // Replace with dynamic user ID from session
         if (!currentUserId) {
             return null;

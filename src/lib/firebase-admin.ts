@@ -1,17 +1,60 @@
 
+'use server';
 import * as admin from 'firebase-admin';
 
-const serviceAccount = process.env.FIREBASE_SERVICE_ACCOUNT;
-
-if (!serviceAccount) {
-    throw new Error('FIREBASE_SERVICE_ACCOUNT environment variable is not set.');
+if (!process.env.FIREBASE_SERVICE_ACCOUNT) {
+  if (process.env.NODE_ENV === 'development') {
+    console.warn(
+      'FIREBASE_SERVICE_ACCOUNT is not set. This is required for server-side Firebase Admin SDK operations. Please generate a service account key from your Firebase project settings and add it to your .env.local file. This warning will become an error in production.'
+    );
+  } else {
+    throw new Error(
+      'FIREBASE_SERVICE_ACCOUNT environment variable is not set.'
+    );
+  }
 }
 
-if (!admin.apps.length) {
-    admin.initializeApp({
-        credential: admin.credential.cert(JSON.parse(serviceAccount)),
-    });
+let db: admin.firestore.Firestore | null = null;
+let auth: admin.auth.Auth | null = null;
+
+if (process.env.FIREBASE_SERVICE_ACCOUNT) {
+  try {
+    const serviceAccount = JSON.parse(process.env.FIREBASE_SERVICE_ACCOUNT);
+    if (!admin.apps.length) {
+      admin.initializeApp({
+        credential: admin.credential.cert(serviceAccount),
+      });
+    }
+    db = admin.firestore();
+    auth = admin.auth();
+  } catch (error) {
+    console.error('Failed to parse FIREBASE_SERVICE_ACCOUNT:', error);
+    if (process.env.NODE_ENV !== 'development') {
+      throw new Error('Failed to initialize Firebase Admin SDK.');
+    }
+  }
 }
 
-export const db = admin.firestore();
-export const auth = admin.auth();
+// Export a getter function to ensure db and auth are initialized
+function getDb() {
+  if (!db) {
+    if (process.env.NODE_ENV === 'development') {
+      // In dev, we might not have the key, so we can return a mock or throw a more specific error
+      throw new Error('Firebase Admin DB not initialized. Check your FIREBASE_SERVICE_ACCOUNT key.');
+    }
+    throw new Error('Firebase Admin DB is not available.');
+  }
+  return db;
+}
+
+function getAuth() {
+  if (!auth) {
+     if (process.env.NODE_ENV === 'development') {
+      throw new Error('Firebase Admin Auth not initialized. Check your FIREBASE_SERVICE_ACCOUNT key.');
+    }
+    throw new Error('Firebase Admin Auth is not available.');
+  }
+  return auth;
+}
+
+export { getDb, getAuth };
