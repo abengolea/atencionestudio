@@ -5,12 +5,12 @@ import {getAuth} from 'firebase/auth';
 
 // Your web app's Firebase configuration
 const firebaseConfig = {
-  apiKey: 'AIzaSyAOwVadH_j_oFzhXLGvEho7pFXhoLYxuGo',
-  authDomain: 'atencion-estudio-juridic-53354.firebaseapp.com',
-  projectId: 'atencion-estudio-juridic-53354',
-  storageBucket: 'atencion-estudio-juridic-53354.appspot.com',
-  messagingSenderId: '171236726689',
-  appId: '1:171236726689:web:d259c6c52a51f382a2089b',
+  apiKey: "AIzaSyBptmLosuoD6k1jQFduYc_eQET3DCjPQFA",
+  authDomain: "caseclarity-hij0x.firebaseapp.com",
+  projectId: "caseclarity-hij0x",
+  storageBucket: "caseclarity-hij0x.appspot.com",
+  messagingSenderId: "911388046994",
+  appId: "1:911388046994:web:1918aa59a91a004365984b"
 };
 
 // Initialize Firebase

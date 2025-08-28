@@ -20,6 +20,11 @@ let auth: admin.auth.Auth | null = null;
 if (process.env.FIREBASE_SERVICE_ACCOUNT) {
   try {
     const serviceAccount = JSON.parse(process.env.FIREBASE_SERVICE_ACCOUNT);
+    // Add a check for the project ID to avoid accidental connection to the wrong project
+    if (serviceAccount.project_id !== 'caseclarity-hij0x') {
+        throw new Error(`The provided service account is for the project "${serviceAccount.project_id}", but this application is configured for "caseclarity-hij0x". Please provide the correct service account key.`);
+    }
+
     if (!admin.apps.length) {
       admin.initializeApp({
         credential: admin.credential.cert(serviceAccount),
@@ -28,7 +33,7 @@ if (process.env.FIREBASE_SERVICE_ACCOUNT) {
     db = admin.firestore();
     auth = admin.auth();
   } catch (error) {
-    console.error('Failed to parse FIREBASE_SERVICE_ACCOUNT:', error);
+    console.error('Failed to parse or validate FIREBASE_SERVICE_ACCOUNT:', error);
     if (process.env.NODE_ENV !== 'development') {
       throw new Error('Failed to initialize Firebase Admin SDK.');
     }
