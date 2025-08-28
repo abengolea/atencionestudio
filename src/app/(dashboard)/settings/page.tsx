@@ -1,8 +1,11 @@
 
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useTransition } from 'react';
 import { useSearchParams } from 'next/navigation';
+import { useForm } from 'react-hook-form';
+import { zodResolver } from '@hookform/resolvers/zod';
+import * as z from 'zod';
 import { Button } from '@/components/ui/button';
 import {
   Card,
@@ -15,7 +18,6 @@ import {
 import { Checkbox } from '@/components/ui/checkbox';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Textarea } from '@/components/ui/textarea';
 import { Separator } from '@/components/ui/separator';
 import {
@@ -25,7 +27,173 @@ import {
     TabsTrigger,
   } from '@/components/ui/tabs';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
-import { Terminal } from 'lucide-react';
+import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
+import { Loader2, Terminal, ShieldCheck, ShieldAlert } from 'lucide-react';
+import { useToast } from '@/hooks/use-toast';
+import { updateUserCredentials, getUserCredentials } from './actions';
+
+const judicialCredentialsSchema = z.object({
+    mevUser: z.string().optional(),
+    mevPassword: z.string().optional(),
+    pjnUser: z.string().optional(),
+    pjnPassword: z.string().optional(),
+});
+
+type JudicialCredentialsFormValues = z.infer<typeof judicialCredentialsSchema>;
+
+function JudicialIntegrationsForm() {
+    const { toast } = useToast();
+    const [isPending, startTransition] = useTransition();
+    const [isLoading, setIsLoading] = useState(true);
+
+    const form = useForm<JudicialCredentialsFormValues>({
+        resolver: zodResolver(judicialCredentialsSchema),
+        defaultValues: {
+            mevUser: '',
+            mevPassword: '',
+            pjnUser: '',
+            pjnPassword: '',
+        }
+    });
+
+    useEffect(() => {
+        setIsLoading(true);
+        getUserCredentials().then(credentials => {
+            if (credentials) {
+                form.reset(credentials);
+            }
+        }).finally(() => setIsLoading(false));
+    }, [form]);
+
+    const onSubmit = (data: JudicialCredentialsFormValues) => {
+        startTransition(async () => {
+            // Filter out empty password fields so they don't overwrite existing ones
+            const credentialsToSave: any = { ...data };
+            if (!data.mevPassword) delete credentialsToSave.mevPassword;
+            if (!data.pjnPassword) delete credentialsToSave.pjnPassword;
+
+            const result = await updateUserCredentials(credentialsToSave);
+            if (result.success) {
+                toast({
+                    title: 'Éxito',
+                    description: result.message,
+                });
+                // After saving, we don't want to show the password back
+                form.reset({ ...data, mevPassword: '', pjnPassword: '' });
+            } else {
+                toast({
+                    variant: 'destructive',
+                    title: 'Error',
+                    description: result.message,
+                });
+            }
+        });
+    }
+    
+    if (isLoading) {
+        return (
+             <CardContent>
+                <div className="flex items-center justify-center h-48">
+                    <Loader2 className="h-8 w-8 animate-spin text-muted-foreground"/>
+                    <p className="ml-2 text-muted-foreground">Cargando credenciales...</p>
+                </div>
+            </CardContent>
+        )
+    }
+
+    return (
+        <Form {...form}>
+            <form onSubmit={form.handleSubmit(onSubmit)}>
+                <CardHeader>
+                    <CardTitle>Integraciones Judiciales</CardTitle>
+                    <CardDescription>Conecta el sistema a las mesas de entradas virtuales para el monitoreo automático de expedientes.</CardDescription>
+                </CardHeader>
+                <CardContent className="space-y-8">
+                     <Alert variant="default" className="bg-blue-50 border-blue-200 dark:bg-blue-950 dark:border-blue-800">
+                      <ShieldCheck className="h-4 w-4 !text-blue-600" />
+                      <AlertTitle className="text-blue-800 dark:text-blue-300">Almacenamiento Seguro</AlertTitle>
+                      <AlertDescription className="text-blue-700 dark:text-blue-400">
+                        Tus credenciales se almacenan de forma segura y nunca se exponen en el lado del cliente. Deja el campo de contraseña en blanco si no deseas actualizarla.
+                      </AlertDescription>
+                    </Alert>
+
+                    {/* MEV SCBA */}
+                    <div className="space-y-4 p-4 border rounded-lg">
+                        <h3 className="font-semibold">MEV - SCBA (Prov. de Buenos Aires)</h3>
+                        <FormField
+                            control={form.control}
+                            name="mevUser"
+                            render={({ field }) => (
+                                <FormItem>
+                                    <FormLabel>Usuario</FormLabel>
+                                    <FormControl>
+                                        <Input placeholder="Tu usuario de la MEV" {...field} />
+                                    </FormControl>
+                                    <FormMessage />
+                                </FormItem>
+                            )}
+                        />
+                        <FormField
+                            control={form.control}
+                            name="mevPassword"
+                            render={({ field }) => (
+                                <FormItem>
+                                    <FormLabel>Contraseña</FormLabel>
+                                    <FormControl>
+                                        <Input type="password" placeholder="Ingresa una nueva contraseña para actualizar" {...field} />
+                                    </FormControl>
+                                    <FormMessage />
+                                </FormItem>
+                            )}
+                        />
+                    </div>
+
+                    {/* PJN */}
+                    <div className="space-y-4 p-4 border rounded-lg">
+                        <h3 className="font-semibold">PJN (Poder Judicial de la Nación)</h3>
+                         <FormField
+                            control={form.control}
+                            name="pjnUser"
+                            render={({ field }) => (
+                                <FormItem>
+                                    <FormLabel>CUIT/CUIL</FormLabel>
+                                    <FormControl>
+                                        <Input placeholder="Tu CUIT/CUIL" {...field} />
+                                    </FormControl>
+                                    <FormMessage />
+                                </FormItem>
+                            )}
+                        />
+                        <FormField
+                            control={form.control}
+                            name="pjnPassword"
+                            render={({ field }) => (
+                                <FormItem>
+                                    <FormLabel>Contraseña</FormLabel>
+                                    <FormControl>
+                                        <Input type="password" placeholder="Ingresa una nueva contraseña para actualizar" {...field} />
+                                    </FormControl>
+                                    <FormMessage />
+                                </FormItem>
+                            )}
+                        />
+                    </div>
+                </CardContent>
+                <CardFooter className="flex justify-between">
+                    <div className="flex items-center gap-2">
+                        <Button type="submit" disabled={isPending}>
+                            {isPending && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+                            {isPending ? 'Guardando...' : 'Guardar Credenciales'}
+                        </Button>
+                        <Button variant="outline" disabled>Probar Conexión</Button>
+                    </div>
+                  <p className="text-xs text-muted-foreground">Se añadirán más jurisdicciones en el futuro.</p>
+                </CardFooter>
+            </form>
+        </Form>
+    )
+}
+
 
 export default function SettingsPage() {
   const [webhookUrl, setWebhookUrl] = useState('');
@@ -33,7 +201,6 @@ export default function SettingsPage() {
   const defaultTab = searchParams.get('tab') || 'profile';
 
   useEffect(() => {
-    // Asegura que window.location solo se use en el cliente
     if (typeof window !== 'undefined') {
       const url = `${window.location.origin}/api/whatsapp`;
       setWebhookUrl(url);
@@ -131,56 +298,7 @@ export default function SettingsPage() {
 
         <TabsContent value="integrations">
             <Card>
-                <CardHeader>
-                    <CardTitle>Integraciones Judiciales</CardTitle>
-                    <CardDescription>Conecta el sistema a las mesas de entradas virtuales para el monitoreo automático de expedientes.</CardDescription>
-                </CardHeader>
-                <CardContent className="space-y-8">
-                    <Alert variant="destructive">
-                      <Terminal className="h-4 w-4" />
-                      <AlertTitle>Función en Desarrollo</AlertTitle>
-                      <AlertDescription>
-                        Esta sección es una demostración. La conexión real y el almacenamiento seguro de credenciales requieren un desarrollo de backend adicional. No guarde contraseñas reales aquí.
-                      </AlertDescription>
-                    </Alert>
-
-                    {/* MEV SCBA */}
-                    <div className="space-y-4 p-4 border rounded-lg">
-                        <h3 className="font-semibold">MEV - SCBA (Prov. de Buenos Aires)</h3>
-                        <div className="space-y-2">
-                            <Label htmlFor="mev-user">Usuario</Label>
-                            <Input id="mev-user" placeholder="Tu usuario de la MEV" />
-                        </div>
-                        <div className="space-y-2">
-                            <Label htmlFor="mev-password">Contraseña</Label>
-                            <Input id="mev-password" type="password" placeholder="Tu contraseña de la MEV" />
-                        </div>
-                         <div className="flex items-center gap-2">
-                           <Button disabled>Guardar Credenciales</Button>
-                           <Button variant="outline" disabled>Probar Conexión</Button>
-                         </div>
-                    </div>
-
-                    {/* PJN */}
-                    <div className="space-y-4 p-4 border rounded-lg">
-                        <h3 className="font-semibold">PJN (Poder Judicial de la Nación)</h3>
-                         <div className="space-y-2">
-                            <Label htmlFor="pjn-user">CUIT/CUIL</Label>
-                            <Input id="pjn-user" placeholder="Tu CUIT/CUIL" />
-                        </div>
-                        <div className="space-y-2">
-                            <Label htmlFor="pjn-password">Contraseña</Label>
-                            <Input id="pjn-password" type="password" placeholder="Tu contraseña del PJN" />
-                        </div>
-                         <div className="flex items-center gap-2">
-                           <Button disabled>Guardar Credenciales</Button>
-                           <Button variant="outline" disabled>Probar Conexión</Button>
-                         </div>
-                    </div>
-                </CardContent>
-                <CardFooter>
-                  <p className="text-xs text-muted-foreground">Se añadirán más jurisdicciones en el futuro.</p>
-                </CardFooter>
+                <JudicialIntegrationsForm />
             </Card>
         </TabsContent>
 
