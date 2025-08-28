@@ -12,13 +12,13 @@
 import {ai} from '@/ai/genkit';
 import {z} from 'genkit';
 
-export const MonitorMevInputSchema = z.object({
+const MonitorMevInputSchema = z.object({
   username: z.string().describe('El nombre de usuario para la MEV.'),
   password: z.string().describe('La contraseña para la MEV.'),
 });
 export type MonitorMevInput = z.infer<typeof MonitorMevInputSchema>;
 
-export const MonitorMevOutputSchema = z.object({
+const MonitorMevOutputSchema = z.object({
   status: z.enum(['success', 'failure']),
   message: z.string().describe('Un mensaje detallando el resultado de la operación.'),
   checkedCases: z.number().describe('El número de expedientes revisados.'),
