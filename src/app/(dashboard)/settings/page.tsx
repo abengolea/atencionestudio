@@ -63,6 +63,14 @@ function JudicialIntegrationsForm() {
         getUserCredentials().then(credentials => {
             if (credentials) {
                 form.reset(credentials);
+            } else {
+                // If no credentials are found, reset with default empty values.
+                form.reset({
+                    mevUser: '',
+                    mevPassword: '',
+                    pjnUser: '',
+                    pjnPassword: '',
+                });
             }
         }).finally(() => setIsLoading(false));
     }, [form]);
