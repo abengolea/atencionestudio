@@ -14,54 +14,47 @@ const serviceAccount = null;
 // };
 // --------------------------
 
-let app: admin.app.App | null = null;
+let db: admin.firestore.Firestore | null = null;
+let auth: admin.auth.Auth | null = null;
 
-function initializeFirebaseAdmin() {
-  if (app) {
-    return app;
+if (process.env.NODE_ENV === 'development' && !admin.apps.length) {
+    console.log("Initializing Firebase Admin SDK for DEVELOPMENT...");
+}
+
+if (!admin.apps.length) {
+  if (serviceAccount && serviceAccount.project_id) {
+    try {
+      admin.initializeApp({
+        credential: admin.credential.cert(serviceAccount),
+      });
+      console.log('Firebase Admin SDK inicializado correctamente.');
+      db = admin.firestore();
+      auth = admin.auth();
+    } catch (error: any) {
+      console.error('ERROR CRÍTICO: Fallo al inicializar Firebase Admin SDK.', error.message);
+      // Dejar db y auth como null si falla.
+    }
+  } else {
+    console.error('ERROR CRÍTICO: La clave de servicio (serviceAccount) no está configurada en src/lib/firebase-admin.ts.');
   }
-
-  if (admin.apps.length > 0) {
-    app = admin.app();
-    return app;
-  }
-  
-  if (!serviceAccount || !serviceAccount.project_id) {
-     console.error('CRITICAL: La clave de servicio (serviceAccount) no está configurada en src/lib/firebase-admin.ts.');
-     // No lanzamos un error aquí para evitar que el servidor falle en bucle,
-     // pero las funciones que dependan de Firebase fallarán.
-     return null;
-  }
-
-  try {
-    app = admin.initializeApp({
-      credential: admin.credential.cert(serviceAccount),
-    });
-
-    return app;
-
-  } catch (error: any) {
-    console.error('Error al inicializar Firebase Admin SDK:', error.message);
-    return null;
-  }
+} else {
+    // Si ya está inicializado, simplemente obtén las instancias.
+    db = admin.firestore();
+    auth = admin.auth();
 }
 
 function getDb() {
-  const adminApp = initializeFirebaseAdmin();
-  if (!adminApp) {
-    console.error('Error al obtener DB: La aplicación de Firebase Admin no está inicializada.');
-    throw new Error('Firebase Admin App no está disponible.');
-  };
-  return admin.firestore(adminApp);
+  if (!db) {
+    throw new Error('La base de datos de Firebase Admin no está disponible. Revisa los registros del servidor para ver el error de inicialización.');
+  }
+  return db;
 }
 
 function getAuth() {
-  const adminApp = initializeFirebaseAdmin();
-   if (!adminApp) {
-    console.error('Error al obtener Auth: La aplicación de Firebase Admin no está inicializada.');
-    throw new Error('Firebase Admin App no está disponible.');
-  };
-  return admin.auth(adminApp);
+  if (!auth) {
+    throw new Error('El servicio de autenticación de Firebase Admin no está disponible. Revisa los registros del servidor para ver el error de inicialización.');
+  }
+  return auth;
 }
 
 export { getDb, getAuth };
