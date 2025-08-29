@@ -2,17 +2,17 @@
 'use server';
 import * as admin from 'firebase-admin';
 
-// Check if the service account is available in the environment
-if (!process.env.FIREBASE_SERVICE_ACCOUNT) {
-  console.error(
-    'CRITICAL: FIREBASE_SERVICE_ACCOUNT environment variable is not set.'
-  );
-  if (process.env.NODE_ENV !== 'development') {
-    throw new Error(
-      'FIREBASE_SERVICE_ACCOUNT environment variable is not set.'
-    );
-  }
-}
+// --- INSTRUCCIÓN IMPORTANTE ---
+// PEGA TU CLAVE DE CUENTA DE SERVICIO DE FIREBASE AQUÍ
+// Reemplaza el objeto `null` de abajo con el contenido completo de tu archivo JSON de clave de servicio.
+const serviceAccount = null;
+// Ejemplo:
+// const serviceAccount = {
+//   "type": "service_account",
+//   "project_id": "tu-project-id",
+//   ...
+// };
+// --------------------------
 
 let app: admin.app.App | null = null;
 
@@ -25,17 +25,18 @@ function initializeFirebaseAdmin() {
     app = admin.app();
     return app;
   }
-
-  if (!process.env.FIREBASE_SERVICE_ACCOUNT) {
-     throw new Error('Firebase Admin SDK not initialized: FIREBASE_SERVICE_ACCOUNT key is missing.');
+  
+  if (!serviceAccount || !serviceAccount.project_id) {
+     console.error('CRITICAL: La clave de servicio (serviceAccount) no está configurada en src/lib/firebase-admin.ts.');
+     // No lanzamos un error aquí para evitar que el servidor falle en bucle,
+     // pero las funciones que dependan de Firebase fallarán.
+     return null;
   }
 
   try {
-    const serviceAccount = JSON.parse(process.env.FIREBASE_SERVICE_ACCOUNT);
-
     if (serviceAccount.project_id !== 'caseclarity-hij0x') {
-      throw new Error(
-        `The provided service account is for the project "${serviceAccount.project_id}", but this application is configured for "caseclarity-hij0x". Please provide the correct service account key.`
+       throw new Error(
+        `La clave de servicio proporcionada es para el proyecto "${serviceAccount.project_id}", pero esta aplicación está configurada para "caseclarity-hij0x". Por favor, proporciona la clave correcta.`
       );
     }
     
@@ -46,22 +47,26 @@ function initializeFirebaseAdmin() {
     return app;
 
   } catch (error: any) {
-    console.error('Failed to parse or validate FIREBASE_SERVICE_ACCOUNT:', error.message);
-    // Log the first few characters of the env var to help debug formatting issues without exposing secrets.
-    console.error('FIREBASE_SERVICE_ACCOUNT starts with:', process.env.FIREBASE_SERVICE_ACCOUNT.substring(0, 20));
-    throw new Error('Failed to initialize Firebase Admin SDK due to an invalid service account key.');
+    console.error('Error al inicializar Firebase Admin SDK:', error.message);
+    return null;
   }
 }
 
 function getDb() {
   const adminApp = initializeFirebaseAdmin();
-  if (!adminApp) throw new Error('Firebase Admin App is not available.');
+  if (!adminApp) {
+    console.error('Error al obtener DB: La aplicación de Firebase Admin no está inicializada.');
+    throw new Error('Firebase Admin App no está disponible.');
+  };
   return admin.firestore(adminApp);
 }
 
 function getAuth() {
   const adminApp = initializeFirebaseAdmin();
-  if (!adminApp) throw new Error('Firebase Admin App is not available.');
+   if (!adminApp) {
+    console.error('Error al obtener Auth: La aplicación de Firebase Admin no está inicializada.');
+    throw new Error('Firebase Admin App no está disponible.');
+  };
   return admin.auth(adminApp);
 }
 
