@@ -2,64 +2,67 @@
 'use server';
 import * as admin from 'firebase-admin';
 
+// Check if the service account is available in the environment
 if (!process.env.FIREBASE_SERVICE_ACCOUNT) {
-  if (process.env.NODE_ENV === 'development') {
-    console.warn(
-      'FIREBASE_SERVICE_ACCOUNT is not set. This is required for server-side Firebase Admin SDK operations. Please generate a service account key from your Firebase project settings and add it to your .env.local file. This warning will become an error in production.'
-    );
-  } else {
+  console.error(
+    'CRITICAL: FIREBASE_SERVICE_ACCOUNT environment variable is not set.'
+  );
+  if (process.env.NODE_ENV !== 'development') {
     throw new Error(
       'FIREBASE_SERVICE_ACCOUNT environment variable is not set.'
     );
   }
 }
 
-let db: admin.firestore.Firestore | null = null;
-let auth: admin.auth.Auth | null = null;
+let app: admin.app.App | null = null;
 
-if (process.env.FIREBASE_SERVICE_ACCOUNT) {
+function initializeFirebaseAdmin() {
+  if (app) {
+    return app;
+  }
+
+  if (admin.apps.length > 0) {
+    app = admin.app();
+    return app;
+  }
+
+  if (!process.env.FIREBASE_SERVICE_ACCOUNT) {
+     throw new Error('Firebase Admin SDK not initialized: FIREBASE_SERVICE_ACCOUNT key is missing.');
+  }
+
   try {
     const serviceAccount = JSON.parse(process.env.FIREBASE_SERVICE_ACCOUNT);
-    // Add a check for the project ID to avoid accidental connection to the wrong project
-    if (serviceAccount.project_id !== 'caseclarity-hij0x') {
-        throw new Error(`The provided service account is for the project "${serviceAccount.project_id}", but this application is configured for "caseclarity-hij0x". Please provide the correct service account key.`);
-    }
 
-    if (!admin.apps.length) {
-      admin.initializeApp({
-        credential: admin.credential.cert(serviceAccount),
-      });
+    if (serviceAccount.project_id !== 'caseclarity-hij0x') {
+      throw new Error(
+        `The provided service account is for the project "${serviceAccount.project_id}", but this application is configured for "caseclarity-hij0x". Please provide the correct service account key.`
+      );
     }
-    db = admin.firestore();
-    auth = admin.auth();
-  } catch (error) {
-    console.error('Failed to parse or validate FIREBASE_SERVICE_ACCOUNT:', error);
-    if (process.env.NODE_ENV !== 'development') {
-      throw new Error('Failed to initialize Firebase Admin SDK.');
-    }
+    
+    app = admin.initializeApp({
+      credential: admin.credential.cert(serviceAccount),
+    });
+
+    return app;
+
+  } catch (error: any) {
+    console.error('Failed to parse or validate FIREBASE_SERVICE_ACCOUNT:', error.message);
+    // Log the first few characters of the env var to help debug formatting issues without exposing secrets.
+    console.error('FIREBASE_SERVICE_ACCOUNT starts with:', process.env.FIREBASE_SERVICE_ACCOUNT.substring(0, 20));
+    throw new Error('Failed to initialize Firebase Admin SDK due to an invalid service account key.');
   }
 }
 
-// Export a getter function to ensure db and auth are initialized
 function getDb() {
-  if (!db) {
-    if (process.env.NODE_ENV === 'development') {
-      // In dev, we might not have the key, so we can return a mock or throw a more specific error
-      throw new Error('Firebase Admin DB not initialized. Check your FIREBASE_SERVICE_ACCOUNT key.');
-    }
-    throw new Error('Firebase Admin DB is not available.');
-  }
-  return db;
+  const adminApp = initializeFirebaseAdmin();
+  if (!adminApp) throw new Error('Firebase Admin App is not available.');
+  return admin.firestore(adminApp);
 }
 
 function getAuth() {
-  if (!auth) {
-     if (process.env.NODE_ENV === 'development') {
-      throw new Error('Firebase Admin Auth not initialized. Check your FIREBASE_SERVICE_ACCOUNT key.');
-    }
-    throw new Error('Firebase Admin Auth is not available.');
-  }
-  return auth;
+  const adminApp = initializeFirebaseAdmin();
+  if (!adminApp) throw new Error('Firebase Admin App is not available.');
+  return admin.auth(adminApp);
 }
 
 export { getDb, getAuth };
