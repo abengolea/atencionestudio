@@ -34,12 +34,6 @@ function initializeFirebaseAdmin() {
   }
 
   try {
-    if (serviceAccount.project_id !== 'caseclarity-hij0x') {
-       throw new Error(
-        `La clave de servicio proporcionada es para el proyecto "${serviceAccount.project_id}", pero esta aplicación está configurada para "caseclarity-hij0x". Por favor, proporciona la clave correcta.`
-      );
-    }
-    
     app = admin.initializeApp({
       credential: admin.credential.cert(serviceAccount),
     });
