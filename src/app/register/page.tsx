@@ -13,7 +13,6 @@ import { auth, db } from '@/lib/firebase';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import Image from 'next/image';
 import { Logo } from '@/components/Logo';
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
@@ -24,8 +23,6 @@ const registerSchema = z.object({
   firstName: z.string().min(1, 'El nombre es requerido'),
   lastName: z.string().min(1, 'El apellido es requerido'),
   email: z.string().email('El email no es válido'),
-  license: z.string().min(1, 'El número de licencia es requerido'),
-  specialization: z.string({ required_error: 'La especialización es requerida' }),
   password: z.string().min(6, 'La contraseña debe tener al menos 6 caracteres'),
 });
 
@@ -42,7 +39,6 @@ export default function RegisterPage() {
       firstName: '',
       lastName: '',
       email: '',
-      license: '',
       password: '',
     },
   });
@@ -58,8 +54,6 @@ export default function RegisterPage() {
       await setDoc(doc(db, 'users', user.uid), {
         name: `${data.firstName} ${data.lastName}`,
         email: data.email,
-        license: data.license,
-        specialization: data.specialization,
         role: 'abogado', // Default role for self-registration
         status: 'activo', // Default status for new users
         phone: '', // Phone can be added later from their profile settings
@@ -139,43 +133,6 @@ export default function RegisterPage() {
                       <FormControl>
                         <Input type="email" placeholder="m@ejemplo.com" {...field} />
                       </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-                <FormField
-                  control={form.control}
-                  name="license"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Número de Licencia</FormLabel>
-                      <FormControl>
-                        <Input placeholder="P1234567" {...field} />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-                <FormField
-                  control={form.control}
-                  name="specialization"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Especialización Principal</FormLabel>
-                      <Select onValueChange={field.onChange} defaultValue={field.value}>
-                        <FormControl>
-                          <SelectTrigger>
-                            <SelectValue placeholder="Selecciona una especialización" />
-                          </SelectTrigger>
-                        </FormControl>
-                        <SelectContent>
-                          <SelectItem value="civil">Civil</SelectItem>
-                          <SelectItem value="penal">Penal</SelectItem>
-                          <SelectItem value="laboral">Laboral</SelectItem>
-                          <SelectItem value="family">Familiar</SelectItem>
-                          <SelectItem value="corporate">Corporativo</SelectItem>
-                        </SelectContent>
-                      </Select>
                       <FormMessage />
                     </FormItem>
                   )}
